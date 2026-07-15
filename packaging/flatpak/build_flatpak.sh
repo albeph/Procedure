@@ -40,8 +40,9 @@ flatpak-builder --user --install --force-clean build-dir io.github.albeph.Proced
 
 # 5. Genera il pacchetto portabile .flatpak per la distribuzione
 echo "4. Generazione del pacchetto portabile .flatpak per la distribuzione..."
+VERSION=$(python3 -c "import sys; sys.path.insert(0, '../../app/src'); from config import VERSION; print(VERSION)")
 mkdir -p ../../dist
-flatpak build-bundle ~/.local/share/flatpak/repo ../../dist/Procedure.flatpak io.github.albeph.Procedure master
+flatpak build-bundle ~/.local/share/flatpak/repo ../../dist/io.github.albeph.Procedure_${VERSION}.flatpak io.github.albeph.Procedure master
 
 # 6. Fine
 echo ""
@@ -51,7 +52,7 @@ echo "Puoi avviarlo in locale tramite:"
 echo "👉 flatpak run io.github.albeph.Procedure"
 echo ""
 echo "Trovi il pacchetto portabile da copiare su altri computer in:"
-echo "👉 $(readlink -f ../../dist/Procedure.flatpak)"
+echo "👉 $(readlink -f ../../dist/io.github.albeph.Procedure_${VERSION}.flatpak)"
 echo "--------------------------------------------------------"
 echo ""
 

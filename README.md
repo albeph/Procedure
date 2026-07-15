@@ -67,7 +67,7 @@ sudo apt remove io.github.albeph.procedure
 Runs the application inside an isolated secure container, with limited filesystem access but native GNOME Keyring sharing.
 ```bash
 # Install the package (at user level)
-flatpak install --user Procedure.flatpak
+flatpak install --user ./dist/io.github.albeph.Procedure_*.flatpak
 
 # Run the application
 flatpak run io.github.albeph.Procedure
@@ -80,10 +80,10 @@ flatpak uninstall --user io.github.albeph.Procedure
 A single self-contained executable that packages all dependencies and runs on any modern Linux distribution without installation.
 ```bash
 # Make the file executable
-chmod +x Procedure-x86_64.AppImage
+chmod +x ./dist/io.github.albeph.Procedure_*-x86_64.AppImage
 
 # Run the application
-Procedure-x86_64.AppImage
+./dist/io.github.albeph.Procedure_*-x86_64.AppImage
 ```
 
 ---
@@ -112,8 +112,8 @@ Procedure/
 │   └── deb/                  # Debian package script and metadata
 │
 ├── dist/                     # Generated binary targets ready for distribution
-│   ├── Procedure.flatpak     # Standalone portable Flatpak bundle
-│   ├── Procedure-x86_64.AppImage # Standalone portable AppImage binary
+│   ├── io.github.albeph.Procedure.flatpak     # Standalone portable Flatpak bundle
+│   ├── io.github.albeph.Procedure-x86_64.AppImage # Standalone portable AppImage binary
 │   └── io.github.albeph.procedure_*.deb # Debian installer package
 │
 ├── README.md                 # This file (project overview)

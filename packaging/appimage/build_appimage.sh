@@ -78,10 +78,10 @@ GENERATED_APPIMAGE=$(find . -maxdepth 1 -name "*.AppImage" | head -n 1)
 
 if [ -n "$GENERATED_APPIMAGE" ]; then
     mkdir -p ../../dist
-    mv "$GENERATED_APPIMAGE" ../../dist/Procedure-x86_64.AppImage
+    mv "$GENERATED_APPIMAGE" ../../dist/io.github.albeph.Procedure_${VERSION}-x86_64.AppImage
     echo "--------------------------------------------------------"
     echo "🎉 Successo! AppImage creata e posizionata in:"
-    echo "👉 $(readlink -f ../../dist/Procedure-x86_64.AppImage)"
+    echo "👉 $(readlink -f ../../dist/io.github.albeph.Procedure_${VERSION}-x86_64.AppImage)"
     echo "--------------------------------------------------------"
 else
     echo "⚠️ Attenzione: Impossibile trovare il file AppImage compilato."
