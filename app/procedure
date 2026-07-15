@@ -31,13 +31,16 @@ if appdir:
         except Exception:
             pass
 
-# Add package source directory to python path (supports local run and installed run)
+# Add package source directory to python path (supports local run, system run, and installed run)
 script_dir = os.path.dirname(os.path.abspath(__file__))
 local_src_dir = os.path.join(script_dir, "src")
+system_src_dir = "/usr/share/procedure/src"
 installed_src_dir = os.path.expanduser("~/.local/share/procedure/src")
 
 if os.path.exists(local_src_dir):
     sys.path.insert(0, local_src_dir)
+elif os.path.exists(system_src_dir):
+    sys.path.insert(0, system_src_dir)
 else:
     sys.path.insert(0, installed_src_dir)
 

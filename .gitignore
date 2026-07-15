@@ -20,6 +20,10 @@ packaging/flatpak/build-dir/
 packaging/flatpak/.flatpak-builder/
 packaging/flatpak/*.flatpak
 
+# Debian packaging temp files
+packaging/deb/deb-build/
+packaging/deb/*.deb
+
 # Distribution outputs (ignore built binaries but keep the directory)
 dist/*
 !dist/.gitkeep
