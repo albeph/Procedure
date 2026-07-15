@@ -66,11 +66,13 @@ Procedure/
 │
 ├── packaging/                # Package recipes and build scripts
 │   ├── flatpak/              # Flatpak manifest and build scripts (GNOME 50)
-│   └── appimage/             # AppImage recipe and portable build scripts
+│   ├── appimage/             # AppImage recipe and portable build scripts
+│   └── deb/                  # Debian package script and metadata
 │
 ├── dist/                     # Generated binary targets ready for distribution
 │   ├── Procedure.flatpak     # Standalone portable Flatpak bundle
-│   └── Procedure-x86_64.AppImage # Standalone portable AppImage binary
+│   ├── Procedure-x86_64.AppImage # Standalone portable AppImage binary
+│   └── io.github.albeph.procedure_*.deb # Debian installer package
 │
 ├── README.md                 # This file (project overview)
 └── MANUAL.md                 # Detailed user and developer manual
@@ -100,5 +102,5 @@ You can run the application in development mode directly using the launcher:
 ---
 
 ## 📦 Packaging and Distribution
-If you wish to compile Flatpak or AppImage packages ready to be installed or distributed on other Linux machines, refer to the detailed guide:
+If you wish to compile Flatpak, AppImage, or Debian (.deb) packages ready to be installed or distributed on other Linux machines, refer to the detailed guide:
 👉 `packaging/README.md`

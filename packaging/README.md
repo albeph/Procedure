@@ -1,6 +1,6 @@
-# Packaging Guide: Flatpak & AppImage on a Clean Machine
+# Packaging Guide: Flatpak, AppImage & Debian (.deb) on a Clean Machine
 
-This guide describes the step-by-step instructions to install build dependencies and generate compiled packages of **Procedure** (`Procedure.flatpak` and `Procedure-x86_64.AppImage`) starting from a "clean/virgin" Linux installation (e.g., a fresh Ubuntu 24.04 LTS or Debian 12 install).
+This guide describes the step-by-step instructions to install build dependencies and generate compiled packages of **Procedure** (`Procedure.flatpak`, `Procedure-x86_64.AppImage`, and `io.github.albeph.procedure_*_all.deb`) starting from a "clean/virgin" Linux installation (e.g., a fresh Ubuntu 24.04 LTS or Debian 12 install).
 
 All packaging processes are configured to isolate temporary build files within their respective subfolders and place the final packages inside the `dist/` folder at the project root.
 
@@ -87,6 +87,41 @@ Make it executable and run it:
 ```bash
 chmod +x dist/Procedure-x86_64.AppImage
 ./dist/Procedure-x86_64.AppImage
+```
+
+---
+
+## 3. How to Compile the Debian (.deb) Package
+
+The Debian package installs the application system-wide for Debian, Ubuntu, Linux Mint, and other derivative distributions. It leverages the host system libraries natively and maps proper dependencies in the package control file.
+
+### Step 1: Install dpkg-deb dependencies
+On a clean machine, ensure that `dpkg` build tools are installed (pre-installed on almost all Debian/Ubuntu systems):
+```bash
+sudo apt update
+sudo apt install -y binutils dpkg python3 python3-gi python3-pil gir1.2-webkit-6.0 gir1.2-adw-1 libsecret-1-0
+```
+
+### Step 2: Run the Debian Build Script
+Start the script from the project root:
+```bash
+# Run the compilation script
+./packaging/deb/build_deb.sh
+```
+
+This script will:
+1. Extract the current version dynamically from the Python codebase.
+2. Build the temporary folder structures and copy the source code, launchers, desktop shortcuts, and icons.
+3. Generate the Debian control metadata and postinst/postrm trigger scripts.
+4. Compile the final package using `dpkg-deb --root-owner-group`.
+
+### Step 3: Installation
+You can find the compiled `.deb` package at:
+👉 `dist/io.github.albeph.procedure_*_all.deb`
+
+Install it using your package manager:
+```bash
+sudo apt install ./dist/io.github.albeph.procedure_*_all.deb
 ```
 
 ---
