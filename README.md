@@ -1,4 +1,4 @@
-# Procedure
+# Procedure <img src="app/resources/icon.png" align="right" width="128" height="128" />
 
 **Procedure** is a native, independent desktop client for Linux systems, specifically designed to integrate with the **GNOME** desktop environment following the **GNOME HIG (Human Interface Guidelines)**. It acts as a minimal, fast, and secure wrapper for the Notion web service, offering a lightweight alternative to Electron focused on data privacy.
 
