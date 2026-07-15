@@ -46,6 +46,48 @@ Procedure implements a strict logical and technical separation to protect both y
 
 ---
 
+## 📥 How to Install
+
+Once the compiled packages are generated (located in the `dist/` directory), you can install and run them on your system using one of the following methods depending on the package type:
+
+### 1. Debian Package (`.deb`) — *Recommended for Debian/Ubuntu systems*
+Installs the application system-wide, integrates with the desktop environment launcher, and automatically configures native dependencies.
+```bash
+# Install the package (run from the repository root)
+sudo apt install ./dist/io.github.albeph.procedure_*_all.deb
+
+# Run the application (carch it in GNOME desktop menu or run in terminal)
+procedure
+
+# Uninstall the package
+sudo apt remove io.github.albeph.procedure
+```
+
+### 2. Flatpak Package (`.flatpak`) — *Recommended for sandboxed isolation*
+Runs the application inside an isolated secure container, with limited filesystem access but native GNOME Keyring sharing.
+```bash
+# Install the package (at user level)
+flatpak install --user ./dist/Procedure.flatpak
+
+# Run the application
+flatpak run io.github.albeph.Procedure
+
+# Uninstall the package
+flatpak uninstall --user io.github.albeph.Procedure
+```
+
+### 3. AppImage Package (`.AppImage`) — *Recommended for portable, zero-install use*
+A single self-contained executable that packages all dependencies and runs on any modern Linux distribution without installation.
+```bash
+# Make the file executable
+chmod +x ./dist/Procedure-x86_64.AppImage
+
+# Run the application
+./dist/Procedure-x86_64.AppImage
+```
+
+---
+
 ## 📂 Project Structure
 
 The project is divided into isolated folders to separate application code from packaging utilities:
