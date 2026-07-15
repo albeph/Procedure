@@ -46,7 +46,7 @@ Procedure implements a strict logical and technical separation to protect both y
 
 ### 3. Device Recognition Note (macOS / Safari)
 > [!NOTE]
-> Because the WebKitGTK engine presents a default Safari-based User Agent string to web servers, some identity providers (such as Google OAuth or Notion's active session manager) may mistakenly identify your active login session as a **macOS** or **Safari** client instead of Linux. This is normal behavior for WebKit-based desktop wrappers on Linux and does not affect your security.
+> Because the WebKitGTK engine presents a default Safari-based User Agent string to web servers, some identity providers (such as Google OAuth or Notion's active session manager) may mistakenly identify your active login session as a **macOS** or **Safari** client instead of Linux. This is normal behavior for WebKit-based desktop wrappers on Linux and does not affect any functionality.
 
 ---
 
