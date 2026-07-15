@@ -54,7 +54,7 @@ Once the compiled packages are generated (located in the `dist/` directory), you
 Installs the application system-wide, integrates with the desktop environment launcher, and automatically configures native dependencies.
 ```bash
 # Install the package (run from the repository root)
-sudo apt install ./dist/io.github.albeph.procedure_*_all.deb
+sudo apt install io.github.albeph.procedure_*_all.deb
 
 # Run the application (carch it in GNOME desktop menu or run in terminal)
 procedure
@@ -67,7 +67,7 @@ sudo apt remove io.github.albeph.procedure
 Runs the application inside an isolated secure container, with limited filesystem access but native GNOME Keyring sharing.
 ```bash
 # Install the package (at user level)
-flatpak install --user ./dist/Procedure.flatpak
+flatpak install --user Procedure.flatpak
 
 # Run the application
 flatpak run io.github.albeph.Procedure
@@ -80,10 +80,10 @@ flatpak uninstall --user io.github.albeph.Procedure
 A single self-contained executable that packages all dependencies and runs on any modern Linux distribution without installation.
 ```bash
 # Make the file executable
-chmod +x ./dist/Procedure-x86_64.AppImage
+chmod +x Procedure-x86_64.AppImage
 
 # Run the application
-./dist/Procedure-x86_64.AppImage
+Procedure-x86_64.AppImage
 ```
 
 ---
