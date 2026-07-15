@@ -509,6 +509,20 @@ class ProcedureWindow(Adw.ApplicationWindow):
             webview.reload()
         return True
 
+    def shortcut_undo(self, widget, args):
+        """Triggers Undo command in active WebView."""
+        webview = self.get_active_webview()
+        if webview:
+            webview.execute_editing_command("Undo")
+        return True
+
+    def shortcut_redo(self, widget, args):
+        """Triggers Redo command in active WebView."""
+        webview = self.get_active_webview()
+        if webview:
+            webview.execute_editing_command("Redo")
+        return True
+
     # --------------------------------------------------------------------------
     # WebView Diagnostics Console Alerts
     # --------------------------------------------------------------------------

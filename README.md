@@ -44,6 +44,10 @@ Procedure implements a strict logical and technical separation to protect both y
 * **Solution**: Notion downloads note contents locally to speed up loading (in IndexedDB/LocalStorage databases). Since web engines do not encrypt this cache at runtime, *Procedure* redirects it entirely into **volatile RAM (`tmpfs` in `/run/user/<UID>/`)**.
 * **Secure Shredding**: Upon exiting the application (or clicking "Exit"), all cache files inside the volatile RAM are overwritten with zero bytes (`\x00`) before being deleted, preventing recovery of free RAM sectors (Cold-boot attacks).
 
+### 3. Device Recognition Note (macOS / Safari)
+> [!NOTE]
+> Because the WebKitGTK engine presents a default Safari-based User Agent string to web servers, some identity providers (such as Google OAuth or Notion's active session manager) may mistakenly identify your active login session as a **macOS** or **Safari** client instead of Linux. This is normal behavior for WebKit-based desktop wrappers on Linux and does not affect your security.
+
 ---
 
 ## 📥 How to Install

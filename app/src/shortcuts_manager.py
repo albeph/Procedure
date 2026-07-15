@@ -18,7 +18,10 @@ class ShortcutsManager:
             ("<Control>Tab", "shortcut_next_tab"),
             ("<Control><Shift>Tab", "shortcut_prev_tab"),
             ("<Control>r", "shortcut_reload"),
-            ("F5", "shortcut_reload")
+            ("F5", "shortcut_reload"),
+            ("<Control>z", "shortcut_undo"),
+            ("<Control>y", "shortcut_redo"),
+            ("<Control><Shift>z", "shortcut_redo")
         ]
         
         for keys, method_name in shortcuts:
