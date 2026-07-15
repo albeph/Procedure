@@ -122,7 +122,7 @@ Procedure/
 
 ---
 
-## 🛠️ Running Locally
+## 🛠️ Source Execution
 
 ### Prerequisites
 Make sure you have installed GTK4 and WebKitGTK dependencies on your Linux system. On Debian/Ubuntu-based distributions:
