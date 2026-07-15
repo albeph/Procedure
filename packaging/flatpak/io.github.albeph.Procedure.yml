@@ -1,0 +1,28 @@
+id: io.github.albeph.Procedure
+runtime: org.gnome.Platform
+runtime-version: '50'
+sdk: org.gnome.Sdk
+command: procedure
+finish-args:
+  # Permessi di rete e GPU
+  - --share=ipc
+  - --share=network
+  - --socket=fallback-x11
+  - --socket=wayland
+  - --device=dri
+  # Accesso a GNOME Keyring (DBus Secrets Service)
+  - --talk-name=org.freedesktop.secrets
+  # Permesso di scrivere la configurazione dell'app
+  - --filesystem=xdg-config/procedure:create
+modules:
+  - name: procedure
+    buildsystem: simple
+    build-commands:
+      - install -D app/procedure /app/bin/procedure
+      - cp -r app/src /app/bin/src
+      - cp -r app/resources /app/bin/resources
+      - install -D app/io.github.albeph.Procedure.desktop /app/share/applications/io.github.albeph.Procedure.desktop
+      - install -D app/resources/icon.png /app/share/icons/hicolor/512x512/apps/io.github.albeph.Procedure.png
+    sources:
+      - type: dir
+        path: ../..

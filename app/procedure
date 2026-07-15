@@ -1,0 +1,48 @@
+#!/usr/bin/env python3
+import sys
+import os
+
+# Disable WebKitGTK sandbox to prevent crashes in specific virtualization/container environments
+os.environ["WEBKIT_DISABLE_SANDBOX_THIS_IS_DANGEROUS"] = "1"
+# Force hardware composite fallback to fix NVIDIA driver blank screen rendering issues
+os.environ["WEBKIT_DISABLE_DMABUF_RENDERER"] = "1"
+
+# Configure GdkPixbuf SVG loaders at runtime inside the AppImage
+appdir = os.environ.get("APPDIR")
+if appdir:
+    cache_path = "/tmp/procedure-gdk-pixbuf-loaders.cache"
+    svg_loader_path = os.path.join(appdir, "usr/lib/x86_64-linux-gnu/gdk-pixbuf-2.0/2.10.0/loaders/libpixbufloader-svg.so")
+    if os.path.exists(svg_loader_path):
+        cache_content = f"""# GdkPixbuf Image Loader Modules file
+# Automatically generated file, do not edit
+
+"{svg_loader_path}"
+"svg" 6 "gdk-pixbuf" "Scalable Vector Graphics" "LGPL"
+"image/svg+xml" "image/svg" "image/svg-xml" "image/vnd.adobe.svg+xml" "text/xml-svg" "image/svg+xml-compressed" ""
+"svg" "svgz" "svg.gz" ""
+" <svg" "* " 100
+" <!DOCTYPE svg" "* " 100
+
+"""
+        try:
+            with open(cache_path, "w") as f:
+                f.write(cache_content)
+            os.environ["GDK_PIXBUF_MODULE_FILE"] = cache_path
+        except Exception:
+            pass
+
+# Add package source directory to python path (supports local run and installed run)
+script_dir = os.path.dirname(os.path.abspath(__file__))
+local_src_dir = os.path.join(script_dir, "src")
+installed_src_dir = os.path.expanduser("~/.local/share/procedure/src")
+
+if os.path.exists(local_src_dir):
+    sys.path.insert(0, local_src_dir)
+else:
+    sys.path.insert(0, installed_src_dir)
+
+# Import and execute the application entry point
+from main import run
+
+if __name__ == '__main__':
+    run()

@@ -1,0 +1,12 @@
+[Desktop Entry]
+Name=Procedure
+Comment=Client desktop GTK4 nativo con schede
+Exec=procedure %U
+Icon=io.github.albeph.Procedure
+Terminal=false
+Type=Application
+Categories=Office;Utility;
+MimeType=x-scheme-handler/procedure;
+StartupWMClass=io.github.albeph.Procedure
+SingleMainWindow=true
+Keywords=procedure;notes;workspace;editor;markdown;

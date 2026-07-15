@@ -1,0 +1,31 @@
+# Python cache files
+**/__pycache__/
+**/*.pyc
+**/*.pyo
+**/*.pyd
+.pytest_cache/
+.venv/
+venv/
+
+# AppImage builder workspace and caches
+packaging/appimage/AppDir/
+packaging/appimage/appimage-build/
+packaging/appimage/local_bin/
+packaging/appimage/temp_appimage_recipe.yml
+packaging/appimage/*.AppImage
+packaging/appimage/*.zsync
+
+# Flatpak builder workspace and caches
+packaging/flatpak/build-dir/
+packaging/flatpak/.flatpak-builder/
+packaging/flatpak/*.flatpak
+
+# Distribution outputs (ignore built binaries but keep the directory)
+dist/*
+!dist/.gitkeep
+
+# System/OS files
+.DS_Store
+Thumbs.db
+*~
+*.swp

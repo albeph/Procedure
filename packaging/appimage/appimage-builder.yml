@@ -1,0 +1,33 @@
+version: 1
+
+AppDir:
+  path: ./AppDir
+  app_info:
+    id: io.github.albeph.Procedure
+    name: Procedure
+    icon: io.github.albeph.Procedure
+    version: APP_VERSION
+    exec: usr/bin/python3
+    exec_args: "$APPDIR/usr/bin/procedure $@"
+  apt:
+    arch: amd64
+    sources:
+      - sourceline: deb [signed-by=/usr/share/keyrings/ubuntu-archive-keyring.gpg] http://archive.ubuntu.com/ubuntu/ noble main restricted universe
+      - sourceline: deb [signed-by=/usr/share/keyrings/ubuntu-archive-keyring.gpg] http://archive.ubuntu.com/ubuntu/ noble-updates main restricted universe
+    include:
+      - python3
+      - python3-gi
+      - gir1.2-gtk-4.0
+      - gir1.2-adw-1
+      - gir1.2-webkit-6.0
+      - gir1.2-secret-1
+      - gir1.2-soup-3.0
+      - openssl
+      - librsvg2-common
+      - shared-mime-info
+      - libgdk-pixbuf2.0-bin
+
+AppImage:
+  update-information: None
+  sign-key: None
+  arch: x86_64
