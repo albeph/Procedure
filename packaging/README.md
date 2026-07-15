@@ -1,89 +1,89 @@
-# Guida al Packaging: Flatpak & AppImage su Macchina Vergine
+# Packaging Guide: Flatpak & AppImage on a Clean Machine
 
-Questa guida descrive i passaggi passo-passo per installare le dipendenze di build e generare i pacchetti compilati di **Procedure** (`Procedure.flatpak` e `Procedure-x86_64.AppImage`) partendo da un'installazione Linux "vergine" (es. Ubuntu 24.04 LTS o Debian 12 pulita).
+This guide describes the step-by-step instructions to install build dependencies and generate compiled packages of **Procedure** (`Procedure.flatpak` and `Procedure-x86_64.AppImage`) starting from a "clean/virgin" Linux installation (e.g., a fresh Ubuntu 24.04 LTS or Debian 12 install).
 
-Tutti i processi di packaging sono configurati per isolare i file temporanei all'interno delle rispettive sotto-cartelle e posizionare i pacchetti finiti nella cartella `dist/` nella root del progetto.
+All packaging processes are configured to isolate temporary build files within their respective subfolders and place the final packages inside the `dist/` folder at the project root.
 
 ---
 
-## 1. Come compilare il pacchetto Flatpak
+## 1. How to Compile the Flatpak Package
 
-Flatpak è il formato principale consigliato per la distribuzione. Isola l'applicazione in una sandbox protetta ma le consente di accedere alle librerie grafiche avanzate, alla GPU, alla rete e al portachiavi di sistema (**GNOME Keyring**).
+Flatpak is the recommended distribution format. It isolates the application inside a secure sandbox while granting access to advanced graphical libraries, the GPU, network sockets, and the host system keyring (**GNOME Keyring**).
 
-### Passo 1: Installare flatpak e flatpak-builder
-Apri un terminale sulla macchina vergine ed esegui:
+### Step 1: Install flatpak and flatpak-builder
+Open a terminal on the clean machine and run:
 ```bash
 sudo apt update
 sudo apt install -y flatpak flatpak-builder
 ```
 
-### Passo 2: Abilitare il repository Flathub
-Abilita Flathub a livello utente per consentire il download dei runtime e degli SDK:
+### Step 2: Enable the Flathub Repository
+Enable Flathub at the user level to allow downloading runtimes and SDKs:
 ```bash
 flatpak remote-add --user --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo
 ```
 
-### Passo 3: Eseguire lo script di build
-Esegui lo script dalla root del progetto. Lo script controllerà, scaricherà e installerà automaticamente il runtime e l'SDK **GNOME 50** se non sono già presenti sul sistema, per poi compilare ed esportare il pacchetto portabile:
+### Step 3: Run the Build Script
+Run the script from the project root. The script will automatically check, download, and install the **GNOME 50** runtime and SDK if they are not already present on the system, and then compile and export the portable package:
 ```bash
-# Posizionati nella cartella del progetto
+# Navigate to the project directory
 cd /home/user/Projects/Procedure
 
-# Esegui lo script di compilazione
+# Run the compilation script
 ./packaging/flatpak/build_flatpak.sh
 ```
 
-### Passo 4: Verifica ed esecuzione locale
-Al termine del processo, l'applicazione sarà installata nel sistema locale. Puoi avviarla tramite:
+### Step 4: Verification and Local Execution
+At the end of the process, the application will be installed in the local user environment. You can start it via:
 ```bash
 flatpak run io.github.albeph.Procedure
 ```
 
-Il pacchetto portabile standalone pronto per essere copiato ed installato su altri computer si trova in:
+The standalone portable bundle ready to be copied and installed on other computers is located at:
 👉 `dist/Procedure.flatpak`
 
-Per installarlo su una macchina di destinazione:
+To install it on a target machine:
 ```bash
 flatpak install --user dist/Procedure.flatpak
 ```
 
 ---
 
-## 2. Come compilare il pacchetto AppImage Auto-Contenuto
+## 2. How to Compile the Self-Contained AppImage Package
 
-L'AppImage raccoglie al suo interno tutte le librerie dinamiche necessarie (tra cui GTK, WebKitGTK e libsecret) per consentire all'applicazione di avviarsi su qualsiasi altra distribuzione Linux recente, anche se priva delle librerie di GNOME.
+The AppImage bundles all the necessary dynamic libraries (including GTK, WebKitGTK, and libsecret) to allow the application to launch on any other recent Linux distribution, even if it lacks GNOME libraries.
 
-### Passo 1: Installare i prerequisiti di sistema e appimage-builder
-Su una macchina vergine, installa i pacchetti necessari per la compilazione e la gestione delle immagini compresse:
+### Step 1: Install System Prerequisites and appimage-builder
+On a clean machine, install the packages required for compiling and managing compressed images:
 ```bash
 sudo apt update
 sudo apt install -y python3-pip python3-pil patchelf desktop-file-utils appstream squashfs-tools fakeroot fakechroot
 ```
 
-Successivamente, installa `appimage-builder` tramite il gestore pacchetti Python:
+Next, install `appimage-builder` via the Python package manager:
 ```bash
 pip3 install --break-system-packages appimage-builder
 ```
 
-*(Nota: Se la distribuzione vieta l'uso di `--break-system-packages`, puoi installarlo usando `pipx` o all'interno di un ambiente virtuale).*
+*(Note: If the distribution prohibits the use of `--break-system-packages`, you can install it using `pipx` or inside a virtual environment).*
 
-### Passo 2: Eseguire lo script di compilazione dell'AppImage
-Avvia lo script dalla root del progetto:
+### Step 2: Run the AppImage Compilation Script
+Start the script from the project root:
 ```bash
-# Esegui lo script di compilazione
+# Run the compilation script
 ./packaging/appimage/build_appimage.sh
 ```
 
-Questo script:
-1. Creerà una cartella temporanea `AppDir` in cui copierà i sorgenti dell'applicazione.
-2. Userà `appimage-builder` per scaricare automaticamente le librerie native necessarie in un ambiente isolato (`packaging/appimage/appimage-build/`).
-3. Genererà ed esporterà l'eseguibile autonomo finale nella cartella `dist/`.
+This script will:
+1. Create a temporary `AppDir` folder and copy the application source files into it.
+2. Use `appimage-builder` to automatically download the necessary native libraries in an isolated environment (`packaging/appimage/appimage-build/`).
+3. Generate and export the final standalone executable into the `dist/` folder.
 
-### Passo 3: Verifica ed esecuzione
-Trovi l'eseguibile compilato finale in:
+### Step 3: Verification and Execution
+You can find the final compiled executable at:
 👉 `dist/Procedure-x86_64.AppImage`
 
-Rendilo eseguibile e avvialo:
+Make it executable and run it:
 ```bash
 chmod +x dist/Procedure-x86_64.AppImage
 ./dist/Procedure-x86_64.AppImage
@@ -91,9 +91,9 @@ chmod +x dist/Procedure-x86_64.AppImage
 
 ---
 
-## 💡 Risoluzione dei Problemi Comuni su Macchine Pulite
+## 💡 Troubleshooting Common Issues on Clean Machines
 
-*   **Icone o immagini SVG non visualizzate (AppImage)**: 
-    Procedure integra un launcher intelligente che rigenera dinamicamente la cache `loaders.cache` all'avvio su qualsiasi macchina host. Questo assicura il corretto rendering delle icone grafiche di navigazione anche se i path delle librerie del computer host non coincidono con quelli di compilazione.
-*   **Schermo bianco all'avvio**:
-    WebKitGTK richiede i driver della scheda video accelerata. Se esegui l'app all'interno di una macchina virtuale senza accelerazione 3D abilitata, assicurati che l'accelerazione sia supportata, o avvia l'applicazione con `./app/procedure --verbose` per visionare i log di errore.
+*   **Icons or SVG images not displayed (AppImage)**: 
+    Procedure integrates a smart launcher that dynamically regenerates the `loaders.cache` at startup on any host machine. This ensures correct rendering of the graphic navigation icons even if the host computer's library paths do not match the compilation environment.
+*   **White screen on startup**:
+    WebKitGTK requires accelerated graphics drivers. If you run the app inside a virtual machine without 3D acceleration enabled, verify that acceleration is supported, or launch the application with `./app/procedure --verbose` to view error logs.
