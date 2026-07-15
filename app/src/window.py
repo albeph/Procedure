@@ -395,11 +395,22 @@ class ProcedureWindow(Adw.ApplicationWindow):
             return False
         parsed = urllib.parse.urlparse(uri)
         domain = parsed.netloc.lower()
-        if any(domain.endswith(d) for d in [".notion.so", "notion.so", ".notion.com", "notion.com", ".notion.new", "notion.new"]):
+        
+        # Allowed domains/subdomains (Notion & Captchas)
+        allowed_domains = [
+            ".notion.so", "notion.so", 
+            ".notion.com", "notion.com", 
+            ".notion.new", "notion.new",
+            ".hcaptcha.com", "hcaptcha.com",
+            ".recaptcha.net", "recaptcha.net"
+        ]
+        if any(domain.endswith(d) for d in allowed_domains):
             return True
+            
         auth_domains = [
             "accounts.google.com", "appleid.apple.com", "login.microsoftonline.com",
-            "github.com/login", "github.com/sessions"
+            "github.com/login", "github.com/sessions", "google.com/recaptcha",
+            "www.google.com/recaptcha"
         ]
         if any(ad in uri for ad in auth_domains):
             return True
