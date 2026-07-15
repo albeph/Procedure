@@ -67,7 +67,7 @@ sudo apt remove io.github.albeph.procedure
 Runs the application inside an isolated secure container, with limited filesystem access but native GNOME Keyring sharing.
 ```bash
 # Install the package (at user level)
-flatpak install --user ./dist/io.github.albeph.Procedure_*.flatpak
+flatpak install --user io.github.albeph.Procedure_*.flatpak
 
 # Run the application
 flatpak run io.github.albeph.Procedure
@@ -80,10 +80,10 @@ flatpak uninstall --user io.github.albeph.Procedure
 A single self-contained executable that packages all dependencies and runs on any modern Linux distribution without installation.
 ```bash
 # Make the file executable
-chmod +x ./dist/io.github.albeph.Procedure_*-x86_64.AppImage
+chmod +x io.github.albeph.Procedure_*-x86_64.AppImage
 
 # Run the application
-./dist/io.github.albeph.Procedure_*-x86_64.AppImage
+io.github.albeph.Procedure_*-x86_64.AppImage
 ```
 
 ---
