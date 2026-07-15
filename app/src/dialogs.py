@@ -15,10 +15,11 @@ def show_about_dialog(parent):
         application_icon="io.github.albeph.Procedure",
         version=VERSION,
         comments="Client GTK4 nativo per il desktop GNOME (wrapper Notion).",
-        website="https://github.com/user/procedure",
+        website="https://github.com/albeph",
         license_type=Gtk.License.GPL_3_0,
-        developers=["Antigravity AI"],
+        developers=["Albeph"],
     )
+    about.add_credit_section("AI Help", ["Gemini 3.5 Flash"])
     about.present()
 
 
