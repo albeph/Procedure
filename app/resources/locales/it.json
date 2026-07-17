@@ -63,6 +63,7 @@
   "home_default_title": "Home default di Notion",
   "custom_page_title": "Pagina personalizzata",
   
-  "pref_group_language": "Lingua e Internazionalizzazione",
-  "pref_row_language": "Lingua dell'applicazione"
+  "pref_group_language": "Lingua dell'applicazione",
+  "pref_search_languages": "Cerca lingua...",
+  "help_translate_link": "<a href=\"{url}\">Vuoi aiutare con le traduzioni? Clicca qui per leggere come fare</a>"
 }

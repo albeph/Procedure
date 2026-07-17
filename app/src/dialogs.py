@@ -1,9 +1,10 @@
 import sys
+import os
 import gi
 gi.require_version('Gtk', '4.0')
 gi.require_version('Adw', '1')
 from gi.repository import Gtk, Adw
-from config import VERSION
+from config import VERSION, RESOURCES_DIR
 from language_manager import _t, LanguageManager
 
 def show_about_dialog(parent):
@@ -233,26 +234,72 @@ def show_preferences_dialog(parent, config, current_url, current_title, apply_ic
     )
 
     # --- PAGE 2: LINGUA ---
-    language_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=18)
+    language_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=12)
     
+    # Title group/description label
     lang_group = Adw.PreferencesGroup(title=_t("pref_group_language"))
     language_box.append(lang_group)
     
+    # 1. Search Entry
+    search_entry = Gtk.SearchEntry()
+    search_entry.set_placeholder_text(_t("pref_search_languages"))
+    language_box.append(search_entry)
+    
+    # 2. Scrolled ListBox of Languages
     langs = LanguageManager.get_available_languages()
     lang_codes = list(langs.keys())
-    lang_names = list(langs.values())
-    lang_model = Gtk.StringList.new(lang_names)
     current_lang_code = LanguageManager.get_current_language()
-    selected_idx = lang_codes.index(current_lang_code) if current_lang_code in lang_codes else 0
     
-    lang_combo = Adw.ComboRow(
-        title=_t("pref_row_language"),
-        model=lang_model,
-        selected=selected_idx
-    )
-    lang_group.add(lang_combo)
+    list_box = Gtk.ListBox()
+    list_box.set_selection_mode(Gtk.SelectionMode.SINGLE)
+    list_box.add_css_class("boxed-list")
+    
+    rows_map = {}
+    for code, name in langs.items():
+        row = Gtk.ListBoxRow()
+        label = Gtk.Label(label=name)
+        label.set_halign(Gtk.Align.CENTER)
+        label.set_margin_top(10)
+        label.set_margin_bottom(10)
+        row.set_child(label)
+        list_box.append(row)
+        rows_map[row] = code
+        
+        if code == current_lang_code:
+            list_box.select_row(row)
+            
+    scroll_list = Gtk.ScrolledWindow()
+    scroll_list.set_policy(Gtk.PolicyType.NEVER, Gtk.PolicyType.AUTOMATIC)
+    scroll_list.set_min_content_height(180)
+    scroll_list.set_max_content_height(240)
+    scroll_list.set_child(list_box)
+    language_box.append(scroll_list)
+    
+    # 3. Help link at the bottom
+    import urllib.parse
+    readme_path = os.path.join(RESOURCES_DIR, "locales", "README.md")
+    readme_uri = f"file://{urllib.parse.quote(readme_path)}"
+    
+    help_label = Gtk.Label()
+    help_label.set_use_markup(True)
+    help_label.set_markup(_t("help_translate_link", url=readme_uri))
+    help_label.set_halign(Gtk.Align.CENTER)
+    help_label.set_margin_top(12)
+    help_label.set_wrap(True)
+    language_box.append(help_label)
+    
+    # ListBox filtering logic
+    def filter_languages(row):
+        query = search_entry.get_text().strip().lower()
+        if not query:
+            return True
+        code = rows_map.get(row, "")
+        name = langs.get(code, "").lower()
+        return query in name or query in code
+        
+    list_box.set_filter_func(filter_languages)
+    search_entry.connect("search-changed", lambda entry: list_box.invalidate_filter())
 
-    
     scroll_language = create_scroll_page(language_box)
     view_stack.add_titled_with_icon(
         scroll_language,
@@ -276,10 +323,6 @@ def show_preferences_dialog(parent, config, current_url, current_title, apply_ic
         title=_t("pref_row_icon_in_use"),
         subtitle=get_icon_status_label(current_settings["icon"])
     )
-    
-    import os
-    from config import RESOURCES_DIR
-    
     icon_image = Gtk.Image()
     icon_image.set_pixel_size(48)
     
@@ -388,7 +431,8 @@ def show_preferences_dialog(parent, config, current_url, current_title, apply_ic
         page_home.set_title(_t("tab_home_page"))
         
         lang_group.set_title(_t("pref_group_language"))
-        lang_combo.set_title(_t("pref_row_language"))
+        search_entry.set_placeholder_text(_t("pref_search_languages"))
+        help_label.set_markup(_t("help_translate_link", url=readme_uri))
         
         page_lang = view_stack.get_page(scroll_language)
         page_lang.set_title(_t("tab_language"))
@@ -407,20 +451,21 @@ def show_preferences_dialog(parent, config, current_url, current_title, apply_ic
         page_icon = view_stack.get_page(scroll_icon)
         page_icon.set_title(_t("tab_icon"))
 
-    def on_lang_changed(combo, pspec):
-        sel_idx = combo.get_selected()
-        selected_lang_code = lang_codes[sel_idx]
-        LanguageManager.initialize(selected_lang_code)
-        
-        config["language"] = selected_lang_code
-        
-        # Dynamic label updates
-        update_ui_labels()
-        
-        # Notify the parent window
-        save_callback()
+    def on_row_selected(box, row):
+        if row:
+            selected_lang_code = rows_map[row]
+            LanguageManager.initialize(selected_lang_code)
+            
+            # Save temporary changes to config dictionary so they apply to window
+            config["language"] = selected_lang_code
+            
+            # Dynamic label updates
+            update_ui_labels()
+            
+            # Notify the parent window
+            save_callback()
 
-    lang_combo.connect("notify::selected", on_lang_changed)
+    list_box.connect("row-selected", on_row_selected)
 
     def on_close_request(win):
         # Save values to config dict
@@ -429,8 +474,6 @@ def show_preferences_dialog(parent, config, current_url, current_title, apply_ic
         config["icon"] = current_settings["icon"]
         config["show_home_button"] = show_home_switch.get_active()
         config["startup_behavior"] = "restore" if behavior_combo.get_selected() == 0 else "home"
-        
-        config["language"] = selected_lang_code
         
         save_callback()
         
