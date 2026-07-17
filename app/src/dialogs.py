@@ -366,6 +366,72 @@ def show_preferences_dialog(parent, config, current_url, current_title, apply_ic
     bottom_bar.append(switcher)
     main_box.append(bottom_bar)
 
+    # --- DYNAMIC TRANSLATION UPDATE HANDLER ---
+    def update_ui_labels():
+        window.set_title(_t("pref_title"))
+        home_group.set_title(_t("pref_group_home"))
+        current_home_row.set_title(_t("pref_row_home_config"))
+        
+        c_title = clean_title(current_url, current_title) if current_url else None
+        use_current_row.set_title(_t("pref_row_use_current"))
+        use_current_row.set_subtitle(_t("pref_sub_use_current", title=c_title) if c_title else _t("pref_sub_no_page"))
+        
+        reset_row.set_title(_t("pref_row_reset_default"))
+        reset_row.set_subtitle(_t("pref_sub_reset_default"))
+        
+        ui_group.set_title(_t("pref_group_ui"))
+        show_home_switch.set_title(_t("pref_row_show_home"))
+        show_home_switch.set_subtitle(_t("pref_sub_show_home"))
+        
+        startup_group.set_title(_t("pref_group_startup"))
+        behavior_combo.set_title(_t("pref_row_startup_action"))
+        
+        sel_startup = behavior_combo.get_selected()
+        behavior_combo.set_model(Gtk.StringList.new([_t("pref_opt_restore"), _t("pref_opt_home")]))
+        behavior_combo.set_selected(sel_startup)
+        
+        page_home = view_stack.get_page(scroll_home_page)
+        page_home.set_title(_t("tab_home_page"))
+        
+        lang_group.set_title(_t("pref_group_language"))
+        lang_combo.set_title(_t("pref_row_language"))
+        sync_notion_switch.set_title(_t("pref_row_sync_notion_lang"))
+        sync_notion_switch.set_subtitle(_t("pref_sub_sync_notion_lang"))
+        
+        page_lang = view_stack.get_page(scroll_language)
+        page_lang.set_title(_t("tab_language"))
+        
+        icon_group.set_title(_t("pref_group_icon"))
+        current_icon_row.set_title(_t("pref_row_icon_in_use"))
+        current_icon_row.set_subtitle(get_icon_status_label(current_settings["icon"]))
+        
+        default_icon_row.set_title(_t("pref_row_icon_default"))
+        default_icon_row.set_subtitle(_t("pref_sub_icon_default"))
+        btn_apply_default.set_label(_t("pref_btn_apply"))
+        
+        custom_icon_row.set_title(_t("pref_row_icon_custom"))
+        custom_icon_row.set_subtitle(_t("pref_sub_icon_custom"))
+        
+        page_icon = view_stack.get_page(scroll_icon)
+        page_icon.set_title(_t("tab_icon"))
+
+    def on_lang_changed(combo, pspec):
+        sel_idx = combo.get_selected()
+        selected_lang_code = lang_codes[sel_idx]
+        LanguageManager.initialize(selected_lang_code)
+        
+        # Save temporary changes to config dictionary so they apply to window
+        config["language"] = selected_lang_code
+        config["sync_notion_lang"] = sync_notion_switch.get_active()
+        
+        # Dynamic label updates
+        update_ui_labels()
+        
+        # Notify the parent window
+        save_callback()
+
+    lang_combo.connect("notify::selected", on_lang_changed)
+
     def on_close_request(win):
         # Save values to config dict
         config["home_url"] = current_settings["home_url"]
