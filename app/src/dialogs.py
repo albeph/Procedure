@@ -133,12 +133,12 @@ def show_preferences_dialog(parent, config, current_url, current_title, apply_ic
         scroll.set_child(clamp)
         return scroll
 
-    # --- PAGE 1: GENERALE ---
-    general_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=18)
+    # --- PAGE 1: HOME PAGE ---
+    home_page_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=18)
     
     # Home Page Group
     home_group = Adw.PreferencesGroup(title=_t("pref_group_home"))
-    general_box.append(home_group)
+    home_page_box.append(home_group)
     
     def clean_title(url, title_str):
         if not url or url in ["https://app.notion.com/home", "https://www.notion.so/home", "https://notion.so/home", "https://www.notion.com/home"]:
@@ -203,7 +203,7 @@ def show_preferences_dialog(parent, config, current_url, current_title, apply_ic
     
     # Interface Group
     ui_group = Adw.PreferencesGroup(title=_t("pref_group_ui"))
-    general_box.append(ui_group)
+    home_page_box.append(ui_group)
     
     show_home_switch = Adw.SwitchRow(
         title=_t("pref_row_show_home"),
@@ -214,7 +214,7 @@ def show_preferences_dialog(parent, config, current_url, current_title, apply_ic
     
     # Startup Group
     startup_group = Adw.PreferencesGroup(title=_t("pref_group_startup"))
-    general_box.append(startup_group)
+    home_page_box.append(startup_group)
     
     behavior_model = Gtk.StringList.new([_t("pref_opt_restore"), _t("pref_opt_home")])
     behavior_combo = Adw.ComboRow(
@@ -224,9 +224,19 @@ def show_preferences_dialog(parent, config, current_url, current_title, apply_ic
     )
     startup_group.add(behavior_combo)
     
-    # Language Group
+    scroll_home_page = create_scroll_page(home_page_box)
+    view_stack.add_titled_with_icon(
+        scroll_home_page,
+        "home_page",
+        _t("tab_home_page"),
+        "go-home-symbolic"
+    )
+
+    # --- PAGE 2: LINGUA ---
+    language_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=18)
+    
     lang_group = Adw.PreferencesGroup(title=_t("pref_group_language"))
-    general_box.append(lang_group)
+    language_box.append(lang_group)
     
     langs = LanguageManager.get_available_languages()
     lang_codes = list(langs.keys())
@@ -249,15 +259,15 @@ def show_preferences_dialog(parent, config, current_url, current_title, apply_ic
     )
     lang_group.add(sync_notion_switch)
     
-    scroll_general = create_scroll_page(general_box)
+    scroll_language = create_scroll_page(language_box)
     view_stack.add_titled_with_icon(
-        scroll_general,
-        "general",
-        _t("tab_general"),
-        "preferences-system-symbolic"
+        scroll_language,
+        "language",
+        _t("tab_language"),
+        "preferences-desktop-locale-symbolic"
     )
 
-    # --- PAGE 2: ICONA ---
+    # --- PAGE 3: ICONA ---
     icon_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=18)
     
     icon_group = Adw.PreferencesGroup(title=_t("pref_group_icon"))

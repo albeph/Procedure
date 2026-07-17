@@ -57,7 +57,8 @@
   "pref_sub_icon_custom": "Select a PNG image file from your computer",
   "pref_btn_apply": "Apply",
   
-  "tab_general": "General",
+  "tab_home_page": "Home Page",
+  "tab_language": "Language",
   "tab_icon": "Icon",
   "home_default_title": "Default Notion Home",
   "custom_page_title": "Custom page",
