@@ -109,29 +109,7 @@ def show_preferences_dialog(parent, config, current_url, current_title, apply_ic
         default_height=540
     )
     
-    # Load custom CSS to fix ScrolledWindow / ListBox rounded corners glitch
-    css_provider = Gtk.CssProvider()
-    css_provider.load_from_data("""
-        scrolledwindow.language-scrolled-list,
-        scrolledwindow.language-scrolled-list viewport {
-            background-color: transparent;
-            border-style: none;
-            box-shadow: none;
-        }
-        scrolledwindow.language-scrolled-list row:first-child {
-            border-top-left-radius: 8px;
-            border-top-right-radius: 8px;
-        }
-        scrolledwindow.language-scrolled-list row:last-child {
-            border-bottom-left-radius: 8px;
-            border-bottom-right-radius: 8px;
-        }
-    """)
-    Gtk.StyleContext.add_provider_for_display(
-        window.get_display(),
-        css_provider,
-        Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION
-    )
+
     
     main_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
     window.set_content(main_box)
@@ -294,13 +272,7 @@ def show_preferences_dialog(parent, config, current_url, current_title, apply_ic
         if code == current_lang_code:
             list_box.select_row(row)
             
-    scroll_list = Gtk.ScrolledWindow()
-    scroll_list.add_css_class("language-scrolled-list")
-    scroll_list.set_policy(Gtk.PolicyType.NEVER, Gtk.PolicyType.AUTOMATIC)
-    scroll_list.set_min_content_height(180)
-    scroll_list.set_max_content_height(240)
-    scroll_list.set_child(list_box)
-    language_box.append(scroll_list)
+    language_box.append(list_box)
     
     # 3. Help link at the bottom
     import urllib.parse
