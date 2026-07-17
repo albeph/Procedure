@@ -251,13 +251,7 @@ def show_preferences_dialog(parent, config, current_url, current_title, apply_ic
         selected=selected_idx
     )
     lang_group.add(lang_combo)
-    
-    sync_notion_switch = Adw.SwitchRow(
-        title=_t("pref_row_sync_notion_lang"),
-        subtitle=_t("pref_sub_sync_notion_lang"),
-        active=config.get("sync_notion_lang", True)
-    )
-    lang_group.add(sync_notion_switch)
+
     
     scroll_language = create_scroll_page(language_box)
     view_stack.add_titled_with_icon(
@@ -395,8 +389,6 @@ def show_preferences_dialog(parent, config, current_url, current_title, apply_ic
         
         lang_group.set_title(_t("pref_group_language"))
         lang_combo.set_title(_t("pref_row_language"))
-        sync_notion_switch.set_title(_t("pref_row_sync_notion_lang"))
-        sync_notion_switch.set_subtitle(_t("pref_sub_sync_notion_lang"))
         
         page_lang = view_stack.get_page(scroll_language)
         page_lang.set_title(_t("tab_language"))
@@ -420,9 +412,7 @@ def show_preferences_dialog(parent, config, current_url, current_title, apply_ic
         selected_lang_code = lang_codes[sel_idx]
         LanguageManager.initialize(selected_lang_code)
         
-        # Save temporary changes to config dictionary so they apply to window
         config["language"] = selected_lang_code
-        config["sync_notion_lang"] = sync_notion_switch.get_active()
         
         # Dynamic label updates
         update_ui_labels()
@@ -440,10 +430,7 @@ def show_preferences_dialog(parent, config, current_url, current_title, apply_ic
         config["show_home_button"] = show_home_switch.get_active()
         config["startup_behavior"] = "restore" if behavior_combo.get_selected() == 0 else "home"
         
-        # Save language configuration
-        selected_lang_code = lang_codes[lang_combo.get_selected()]
         config["language"] = selected_lang_code
-        config["sync_notion_lang"] = sync_notion_switch.get_active()
         
         save_callback()
         

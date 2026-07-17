@@ -64,7 +64,5 @@
   "custom_page_title": "Custom page",
   
   "pref_group_language": "Language and Internationalization",
-  "pref_row_language": "Application language",
-  "pref_row_sync_notion_lang": "Sync language with Notion",
-  "pref_sub_sync_notion_lang": "Force Notion to load in the same language configured in Procedure"
+  "pref_row_language": "Application language"
 }

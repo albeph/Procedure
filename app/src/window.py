@@ -149,8 +149,7 @@ class ProcedureWindow(Adw.ApplicationWindow):
             "home_title": _t("home_default_title"),
             "show_home_button": True,
             "startup_behavior": "restore",
-            "language": None,
-            "sync_notion_lang": True
+            "language": None
         }
         if os.path.exists(CONFIG_FILE):
             try:
@@ -543,24 +542,6 @@ class ProcedureWindow(Adw.ApplicationWindow):
         menu_model.append(_t("menu_preferences"), "win.preferences")
         menu_model.append(_t("menu_logout"), "win.logout")
         self.menu_button.set_menu_model(menu_model)
-        
-        # Update WebKit default WebContext preferred languages on-the-fly
-        sync_notion = self.config.get("sync_notion_lang", True)
-        if sync_notion:
-            selected_lang = LanguageManager.get_current_language()
-            pref_langs = [f"{selected_lang}-{selected_lang.upper()}", selected_lang]
-            try:
-                WebKit.WebContext.get_default().set_preferred_languages(pref_langs)
-            except Exception:
-                pass
-        
-        # Reload all open web views to request with new headers
-        for i in range(self.tab_view.get_n_pages()):
-            page = self.tab_view.get_nth_page(i)
-            webview = page.get_child()
-            if webview:
-                webview.reload()
-                
         show_home = self.config.get("show_home_button", True)
         self.btn_home.set_visible(show_home)
 
