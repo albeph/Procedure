@@ -109,6 +109,22 @@ def show_preferences_dialog(parent, config, current_url, current_title, apply_ic
         default_height=540
     )
     
+    # Load custom CSS to fix ScrolledWindow / ListBox rounded corners glitch
+    css_provider = Gtk.CssProvider()
+    css_provider.load_from_data("""
+        scrolledwindow.language-scrolled-list,
+        scrolledwindow.language-scrolled-list viewport {
+            background-color: transparent;
+            border-style: none;
+            box-shadow: none;
+        }
+    """)
+    Gtk.StyleContext.add_provider_for_display(
+        window.get_display(),
+        css_provider,
+        Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION
+    )
+    
     main_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
     window.set_content(main_box)
     
@@ -269,6 +285,7 @@ def show_preferences_dialog(parent, config, current_url, current_title, apply_ic
             list_box.select_row(row)
             
     scroll_list = Gtk.ScrolledWindow()
+    scroll_list.add_css_class("language-scrolled-list")
     scroll_list.set_policy(Gtk.PolicyType.NEVER, Gtk.PolicyType.AUTOMATIC)
     scroll_list.set_min_content_height(180)
     scroll_list.set_max_content_height(240)
@@ -348,9 +365,18 @@ def show_preferences_dialog(parent, config, current_url, current_title, apply_ic
         title=_t("pref_row_icon_default"),
         subtitle=_t("pref_sub_icon_default")
     )
-    btn_apply_default = Gtk.Button.new_with_label(_t("pref_btn_apply"))
+    default_preview = Gtk.Image()
+    default_preview.set_pixel_size(48)
+    default_path = os.path.join(RESOURCES_DIR, "icon.png")
+    if os.path.exists(default_path):
+        default_preview.set_from_file(default_path)
+    else:
+        default_preview.set_from_icon_name("io.github.albeph.Procedure")
+    default_icon_row.add_prefix(default_preview)
+    
+    btn_apply_default = Gtk.Button.new_from_icon_name("edit-undo-symbolic")
     btn_apply_default.set_valign(Gtk.Align.CENTER)
-    btn_apply_default.add_css_class("suggested-action")
+    btn_apply_default.set_tooltip_text(_t("pref_btn_apply"))
     
     def on_apply_default_clicked(btn):
         apply_icon_callback("default")
@@ -443,7 +469,7 @@ def show_preferences_dialog(parent, config, current_url, current_title, apply_ic
         
         default_icon_row.set_title(_t("pref_row_icon_default"))
         default_icon_row.set_subtitle(_t("pref_sub_icon_default"))
-        btn_apply_default.set_label(_t("pref_btn_apply"))
+        btn_apply_default.set_tooltip_text(_t("pref_btn_apply"))
         
         custom_icon_row.set_title(_t("pref_row_icon_custom"))
         custom_icon_row.set_subtitle(_t("pref_sub_icon_custom"))
