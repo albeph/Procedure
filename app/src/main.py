@@ -55,10 +55,20 @@ if sync_notion:
 import gi
 gi.require_version('Adw', '1')
 gi.require_version('Gio', '2.0')
-from gi.repository import Adw, Gio
+gi.require_version('WebKit', '6.0')
+from gi.repository import Adw, Gio, WebKit
 
 from language_manager import LanguageManager
 LanguageManager.initialize(lang)
+
+# Set preferred languages on WebKit WebContext if sync is enabled
+if sync_notion:
+    selected_lang = LanguageManager.get_current_language()
+    pref_langs = [f"{selected_lang}-{selected_lang.upper()}", selected_lang]
+    try:
+        WebKit.WebContext.get_default().set_preferred_languages(pref_langs)
+    except Exception:
+        pass
 
 from window import ProcedureWindow
 
