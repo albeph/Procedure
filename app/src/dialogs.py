@@ -188,9 +188,10 @@ def show_preferences_dialog(parent, config, current_url, current_title, apply_ic
         title=_t("pref_row_use_current"),
         subtitle=_t("pref_sub_use_current", title=clean_curr_title) if clean_curr_title else _t("pref_sub_no_page")
     )
-    btn_use_current = Gtk.Button.new_from_icon_name("document-save-symbolic")
+    btn_use_current = Gtk.Button.new_from_icon_name("mark-location-symbolic")
     btn_use_current.set_valign(Gtk.Align.CENTER)
     btn_use_current.set_sensitive(bool(current_url))
+    btn_use_current.set_tooltip_text(_t("pref_row_use_current"))
     
     def on_use_current_clicked(btn):
         if current_url:
@@ -206,8 +207,9 @@ def show_preferences_dialog(parent, config, current_url, current_title, apply_ic
         title=_t("pref_row_reset_default"),
         subtitle=_t("pref_sub_reset_default")
     )
-    btn_reset = Gtk.Button.new_from_icon_name("edit-clear-symbolic")
+    btn_reset = Gtk.Button.new_from_icon_name("edit-undo-symbolic")
     btn_reset.set_valign(Gtk.Align.CENTER)
+    btn_reset.set_tooltip_text(_t("pref_row_reset_default"))
     
     def on_reset_clicked(btn):
         current_settings["home_url"] = "https://app.notion.com/home"
@@ -438,9 +440,11 @@ def show_preferences_dialog(parent, config, current_url, current_title, apply_ic
         c_title = clean_title(current_url, current_title) if current_url else None
         use_current_row.set_title(_t("pref_row_use_current"))
         use_current_row.set_subtitle(_t("pref_sub_use_current", title=c_title) if c_title else _t("pref_sub_no_page"))
+        btn_use_current.set_tooltip_text(_t("pref_row_use_current"))
         
         reset_row.set_title(_t("pref_row_reset_default"))
         reset_row.set_subtitle(_t("pref_sub_reset_default"))
+        btn_reset.set_tooltip_text(_t("pref_row_reset_default"))
         
         ui_group.set_title(_t("pref_group_ui"))
         show_home_switch.set_title(_t("pref_row_show_home"))
