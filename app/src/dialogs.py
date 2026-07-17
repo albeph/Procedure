@@ -168,7 +168,7 @@ def open_file_chooser(parent, file_callback):
     dialog.show()
 
 
-def show_preferences_dialog(parent, config, current_url, save_callback):
+def show_preferences_dialog(parent, config, current_url, current_title, save_callback):
     """
     Shows a native Libadwaita Preferences window to configure home page, startup behavior, and UI elements.
     """
@@ -186,23 +186,48 @@ def show_preferences_dialog(parent, config, current_url, save_callback):
     )
     page.add(home_group)
     
-    # Entry row for Home URL
-    home_entry = Adw.EntryRow(
-        title="Indirizzo Home Page",
-        text=config.get("home_url", "https://app.notion.com/home")
+    def clean_title(url, title_str):
+        if not url or url in ["https://app.notion.com/home", "https://www.notion.so/home", "https://notion.so/home", "https://www.notion.com/home"]:
+            return "Home default di Notion"
+        if title_str:
+            if " | Notion" in title_str:
+                title_str = title_str.split(" | Notion")[0].strip()
+            elif " | " in title_str:
+                title_str = title_str.split(" | ")[0].strip()
+            if title_str:
+                return title_str
+        return "Pagina personalizzata"
+
+    # Load current values from config
+    current_settings = {
+        "home_url": config.get("home_url", "https://app.notion.com/home"),
+        "home_title": config.get("home_title", "Home default di Notion")
+    }
+
+    # Display read-only row with the current home page name
+    current_home_row = Adw.ActionRow(
+        title="Home Page configurata",
+        subtitle=current_settings["home_title"]
     )
-    home_group.add(home_entry)
+    current_home_row.add_prefix(Gtk.Image.new_from_icon_name("go-home-symbolic"))
+    home_group.add(current_home_row)
     
-    # Action row with button to use current page
+    # Action row to set current page as home
+    clean_curr_title = clean_title(current_url, current_title) if current_url else None
     use_current_row = Adw.ActionRow(
         title="Usa la pagina corrente",
-        subtitle=f"Imposta come home page: {current_url or 'nessuna'}"
+        subtitle=f"Imposta come home: {clean_curr_title}" if clean_curr_title else "Nessuna pagina aperta"
     )
     btn_use_current = Gtk.Button.new_from_icon_name("document-save-symbolic")
     btn_use_current.set_valign(Gtk.Align.CENTER)
+    btn_use_current.set_sensitive(bool(current_url))
+    
     def on_use_current_clicked(btn):
         if current_url:
-            home_entry.set_text(current_url)
+            current_settings["home_url"] = current_url
+            current_settings["home_title"] = clean_curr_title
+            current_home_row.set_subtitle(clean_curr_title)
+            
     btn_use_current.connect("clicked", on_use_current_clicked)
     use_current_row.add_suffix(btn_use_current)
     home_group.add(use_current_row)
@@ -214,8 +239,12 @@ def show_preferences_dialog(parent, config, current_url, save_callback):
     )
     btn_reset = Gtk.Button.new_from_icon_name("edit-clear-symbolic")
     btn_reset.set_valign(Gtk.Align.CENTER)
+    
     def on_reset_clicked(btn):
-        home_entry.set_text("https://app.notion.com/home")
+        current_settings["home_url"] = "https://app.notion.com/home"
+        current_settings["home_title"] = "Home default di Notion"
+        current_home_row.set_subtitle("Home default di Notion")
+        
     btn_reset.connect("clicked", on_reset_clicked)
     reset_row.add_suffix(btn_reset)
     home_group.add(reset_row)
@@ -251,18 +280,11 @@ def show_preferences_dialog(parent, config, current_url, save_callback):
     
     # When preferences window is closed, save the settings
     def on_close_request(win):
-        # Read the values
-        new_home_url = home_entry.get_text().strip()
-        if not new_home_url:
-            new_home_url = "https://app.notion.com/home"
-        
-        new_show_home = show_home_switch.get_active()
-        new_behavior = "restore" if behavior_combo.get_selected() == 0 else "home"
-        
         # Save to config dict
-        config["home_url"] = new_home_url
-        config["show_home_button"] = new_show_home
-        config["startup_behavior"] = new_behavior
+        config["home_url"] = current_settings["home_url"]
+        config["home_title"] = current_settings["home_title"]
+        config["show_home_button"] = show_home_switch.get_active()
+        config["startup_behavior"] = "restore" if behavior_combo.get_selected() == 0 else "home"
         
         # Trigger save callback
         save_callback()

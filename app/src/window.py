@@ -146,6 +146,7 @@ class ProcedureWindow(Adw.ApplicationWindow):
             "height": 768, 
             "tabs": ["https://app.notion.com/home"],
             "home_url": "https://app.notion.com/home",
+            "home_title": "Home default di Notion",
             "show_home_button": True,
             "startup_behavior": "restore"
         }
@@ -512,10 +513,13 @@ class ProcedureWindow(Adw.ApplicationWindow):
         """Shows the Libadwaita Preferences dialog."""
         active_wv = self.get_active_webview()
         current_url = active_wv.get_uri() if active_wv else None
+        page = self.tab_view.get_selected_page()
+        current_title = page.get_title() if page else None
         dialogs.show_preferences_dialog(
             self,
             self.config,
             current_url,
+            current_title,
             self.on_preferences_saved
         )
 
