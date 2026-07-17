@@ -196,8 +196,7 @@ def show_preferences_dialog(parent, config, current_url, current_title, apply_ic
     
     def create_scroll_page(child):
         scroll = Gtk.ScrolledWindow()
-        scroll.set_hscrollbar_policy(Gtk.PolicyType.NEVER)
-        scroll.set_vscrollbar_policy(Gtk.PolicyType.AUTOMATIC)
+        scroll.set_policy(Gtk.PolicyType.NEVER, Gtk.PolicyType.AUTOMATIC)
         clamp = Adw.Clamp()
         clamp.set_child(child)
         clamp.set_margin_top(18)
