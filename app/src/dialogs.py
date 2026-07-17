@@ -168,23 +168,51 @@ def open_file_chooser(parent, file_callback):
     dialog.show()
 
 
-def show_preferences_dialog(parent, config, current_url, current_title, save_callback):
+def show_preferences_dialog(parent, config, current_url, current_title, apply_icon_callback, apply_custom_icon_callback, save_callback):
     """
-    Shows a native Libadwaita Preferences window to configure home page, startup behavior, and UI elements.
+    Shows a custom Preferences window with a bottom bar switcher (Adw.ViewSwitcher) containing
+    General Settings and Icon Customization tabs.
     """
-    pref_window = Adw.PreferencesWindow(
+    window = Adw.Window(
         transient_for=parent,
-        title="Preferenze"
+        modal=True,
+        title="Preferenze",
+        default_width=450,
+        default_height=520
     )
     
-    page = Adw.PreferencesPage()
-    pref_window.add(page)
+    main_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
+    window.set_content(main_box)
     
-    # --- Group: Home Page ---
-    home_group = Adw.PreferencesGroup(
-        title="Pagina Iniziale e Home"
-    )
-    page.add(home_group)
+    # 1. Header Bar
+    header_bar = Adw.HeaderBar()
+    main_box.append(header_bar)
+    
+    # 2. View Stack
+    view_stack = Adw.ViewStack()
+    view_stack.set_vexpand(True)
+    view_stack.set_hexpand(True)
+    main_box.append(view_stack)
+    
+    def create_scroll_page(child):
+        scroll = Gtk.ScrolledWindow()
+        scroll.set_hscrollbar_policy(Gtk.PolicyType.NEVER)
+        scroll.set_vscrollbar_policy(Gtk.PolicyType.AUTOMATIC)
+        clamp = Adw.Clamp()
+        clamp.set_child(child)
+        clamp.set_margin_top(18)
+        clamp.set_margin_bottom(18)
+        clamp.set_margin_start(18)
+        clamp.set_margin_end(18)
+        scroll.set_child(clamp)
+        return scroll
+
+    # --- PAGE 1: GENERALE ---
+    general_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=18)
+    
+    # Home Page Group
+    home_group = Adw.PreferencesGroup(title="Pagina Iniziale e Home")
+    general_box.append(home_group)
     
     def clean_title(url, title_str):
         if not url or url in ["https://app.notion.com/home", "https://www.notion.so/home", "https://notion.so/home", "https://www.notion.com/home"]:
@@ -198,13 +226,13 @@ def show_preferences_dialog(parent, config, current_url, current_title, save_cal
                 return title_str
         return "Pagina personalizzata"
 
-    # Load current values from config
+    # Current settings states
     current_settings = {
         "home_url": config.get("home_url", "https://app.notion.com/home"),
-        "home_title": config.get("home_title", "Home default di Notion")
+        "home_title": config.get("home_title", "Home default di Notion"),
+        "icon": config.get("icon", "default")
     }
 
-    # Display read-only row with the current home page name
     current_home_row = Adw.ActionRow(
         title="Home Page configurata",
         subtitle=current_settings["home_title"]
@@ -212,7 +240,6 @@ def show_preferences_dialog(parent, config, current_url, current_title, save_cal
     current_home_row.add_prefix(Gtk.Image.new_from_icon_name("go-home-symbolic"))
     home_group.add(current_home_row)
     
-    # Action row to set current page as home
     clean_curr_title = clean_title(current_url, current_title) if current_url else None
     use_current_row = Adw.ActionRow(
         title="Usa la pagina corrente",
@@ -232,7 +259,6 @@ def show_preferences_dialog(parent, config, current_url, current_title, save_cal
     use_current_row.add_suffix(btn_use_current)
     home_group.add(use_current_row)
     
-    # Reset button/row
     reset_row = Adw.ActionRow(
         title="Ripristina predefinita",
         subtitle="Reimposta la home page predefinita di Notion"
@@ -249,13 +275,10 @@ def show_preferences_dialog(parent, config, current_url, current_title, save_cal
     reset_row.add_suffix(btn_reset)
     home_group.add(reset_row)
     
-    # --- Group: Interfaccia ---
-    ui_group = Adw.PreferencesGroup(
-        title="Interfaccia Utente"
-    )
-    page.add(ui_group)
+    # Interface Group
+    ui_group = Adw.PreferencesGroup(title="Interfaccia Utente")
+    general_box.append(ui_group)
     
-    # Show/hide home button switch
     show_home_switch = Adw.SwitchRow(
         title="Pulsante Home nella barra superiore",
         subtitle="Visualizza il tasto Home per tornare rapidamente alla pagina principale",
@@ -263,13 +286,10 @@ def show_preferences_dialog(parent, config, current_url, current_title, save_cal
     )
     ui_group.add(show_home_switch)
     
-    # --- Group: Avvio ---
-    startup_group = Adw.PreferencesGroup(
-        title="Comportamento all'Avvio"
-    )
-    page.add(startup_group)
+    # Startup Group
+    startup_group = Adw.PreferencesGroup(title="Comportamento all'Avvio")
+    general_box.append(startup_group)
     
-    # Startup behavior combo
     behavior_model = Gtk.StringList.new(["Ripristina schede precedenti", "Apri la pagina Home"])
     behavior_combo = Adw.ComboRow(
         title="All'avvio di Procedure",
@@ -278,16 +298,121 @@ def show_preferences_dialog(parent, config, current_url, current_title, save_cal
     )
     startup_group.add(behavior_combo)
     
-    # When preferences window is closed, save the settings
+    scroll_general = create_scroll_page(general_box)
+    view_stack.add_titled_with_icon(
+        scroll_general,
+        "general",
+        "Generale",
+        "preferences-system-symbolic"
+    )
+
+    # --- PAGE 2: ICONA ---
+    icon_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=18)
+    
+    icon_group = Adw.PreferencesGroup(title="Personalizzazione Icona")
+    icon_box.append(icon_group)
+    
+    def get_icon_status_label(icon_type):
+        if icon_type == "custom":
+            return "Personalizzata (File PNG caricato)"
+        return "Predefinita (Minimalista)"
+        
+    current_icon_row = Adw.ActionRow(
+        title="Icona in uso",
+        subtitle=get_icon_status_label(current_settings["icon"])
+    )
+    
+    import os
+    from config import RESOURCES_DIR
+    
+    icon_image = Gtk.Image()
+    icon_image.set_pixel_size(48)
+    
+    def update_icon_preview(icon_type):
+        if icon_type == "custom":
+            custom_path = os.path.expanduser("~/.local/share/icons/hicolor/512x512/apps/io.github.albeph.Procedure.png")
+            if os.path.exists(custom_path):
+                icon_image.set_from_file(custom_path)
+            else:
+                icon_image.set_from_icon_name("image-missing-symbolic")
+        else:
+            default_path = os.path.join(RESOURCES_DIR, "icon.png")
+            if os.path.exists(default_path):
+                icon_image.set_from_file(default_path)
+            else:
+                icon_image.set_from_icon_name("io.github.albeph.Procedure")
+                
+    update_icon_preview(current_settings["icon"])
+    current_icon_row.add_prefix(icon_image)
+    icon_group.add(current_icon_row)
+    
+    default_icon_row = Adw.ActionRow(
+        title="Icona predefinita",
+        subtitle="Ripristina l'icona minimalista flat di default"
+    )
+    btn_apply_default = Gtk.Button.new_with_label("Applica")
+    btn_apply_default.set_valign(Gtk.Align.CENTER)
+    btn_apply_default.add_css_class("suggested-action")
+    
+    def on_apply_default_clicked(btn):
+        apply_icon_callback("default")
+        current_settings["icon"] = "default"
+        current_icon_row.set_subtitle(get_icon_status_label("default"))
+        update_icon_preview("default")
+        
+    btn_apply_default.connect("clicked", on_apply_default_clicked)
+    default_icon_row.add_suffix(btn_apply_default)
+    icon_group.add(default_icon_row)
+    
+    custom_icon_row = Adw.ActionRow(
+        title="Icona personalizzata",
+        subtitle="Seleziona un file immagine PNG dal tuo computer"
+    )
+    btn_upload_custom = Gtk.Button.new_from_icon_name("document-open-symbolic")
+    btn_upload_custom.set_valign(Gtk.Align.CENTER)
+    
+    def on_icon_file_selected(file_path):
+        if file_path:
+            apply_custom_icon_callback(file_path)
+            current_settings["icon"] = "custom"
+            current_icon_row.set_subtitle(get_icon_status_label("custom"))
+            update_icon_preview("custom")
+
+    def on_upload_custom_clicked(btn):
+        open_file_chooser(window, on_icon_file_selected)
+        
+    btn_upload_custom.connect("clicked", on_upload_custom_clicked)
+    custom_icon_row.add_suffix(btn_upload_custom)
+    icon_group.add(custom_icon_row)
+    
+    scroll_icon = create_scroll_page(icon_box)
+    view_stack.add_titled_with_icon(
+        scroll_icon,
+        "icon",
+        "Icona",
+        "preferences-desktop-wallpaper-symbolic"
+    )
+
+    # 3. View Switcher Bar at the bottom
+    bottom_bar = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL)
+    bottom_bar.add_css_class("toolbar")
+    
+    switcher = Adw.ViewSwitcher()
+    switcher.set_stack(view_stack)
+    switcher.set_hexpand(True)
+    switcher.set_halign(Gtk.Align.CENTER)
+    
+    bottom_bar.append(switcher)
+    main_box.append(bottom_bar)
+
     def on_close_request(win):
-        # Save to config dict
+        # Save values to config dict
         config["home_url"] = current_settings["home_url"]
         config["home_title"] = current_settings["home_title"]
+        config["icon"] = current_settings["icon"]
         config["show_home_button"] = show_home_switch.get_active()
         config["startup_behavior"] = "restore" if behavior_combo.get_selected() == 0 else "home"
-        
-        # Trigger save callback
         save_callback()
         
-    pref_window.connect("close-request", on_close_request)
-    pref_window.present()
+    window.connect("close-request", on_close_request)
+    window.present()

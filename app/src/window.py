@@ -101,7 +101,6 @@ class ProcedureWindow(Adw.ApplicationWindow):
         menu_model = Gio.Menu()
         menu_model.append("Informazioni su Procedure", "win.about")
         menu_model.append("Informazioni sulla crittografia", "win.encryption_info")
-        menu_model.append("Personalizza icona", "win.change_icon")
         menu_model.append("Preferenze", "win.preferences")
         menu_model.append("Esci e cancella sessione", "win.logout")
         self.menu_button.set_menu_model(menu_model)
@@ -126,7 +125,6 @@ class ProcedureWindow(Adw.ApplicationWindow):
         actions = [
             ("about", lambda a, p: dialogs.show_about_dialog(self)),
             ("encryption_info", lambda a, p: dialogs.show_encryption_info_dialog(self, self.session_manager.keyring_available)),
-            ("change_icon", lambda a, p: dialogs.show_change_icon_dialog(self, self.config.get("icon", "default"), self.on_icon_dialog_result)),
             ("preferences", self.on_preferences_activated),
             ("logout", self.on_logout_activated)
         ]
@@ -209,12 +207,7 @@ class ProcedureWindow(Adw.ApplicationWindow):
                 if VERBOSE:
                     print(f"[ERROR] Impossibile applicare l'icona: {e}", file=sys.stderr)
 
-    def on_icon_dialog_result(self, selected_option):
-        """Triggers system file chooser if custom icon is selected, otherwise applies preset."""
-        if selected_option == "custom_file":
-            dialogs.open_file_chooser(self, self.apply_custom_png_file)
-        else:
-            self.apply_new_icon(selected_option)
+
 
     def apply_custom_png_file(self, file_path):
         """Copies custom chosen PNG file to host application icon directory."""
@@ -520,6 +513,8 @@ class ProcedureWindow(Adw.ApplicationWindow):
             self.config,
             current_url,
             current_title,
+            self.apply_new_icon,
+            self.apply_custom_png_file,
             self.on_preferences_saved
         )
 
