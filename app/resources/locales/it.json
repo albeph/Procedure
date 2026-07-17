@@ -1,0 +1,69 @@
+{
+  "app_name": "Procedure",
+  "tab_new": "Nuova scheda",
+  "tooltip_new_tab": "Nuova scheda (Ctrl+T)",
+  "tooltip_main_menu": "Menu principale",
+  "tooltip_home": "Vai alla Home",
+  
+  "menu_about": "Informazioni su Procedure",
+  "menu_encryption": "Informazioni sulla crittografia",
+  "menu_preferences": "Preferenze",
+  "menu_logout": "Esci e cancella sessione",
+  
+  "about_comments": "Client GTK4 nativo per il desktop GNOME (wrapper Notion).",
+  "about_ai_help": "AI Help",
+  
+  "enc_info_title": "Informazioni sulla crittografia",
+  "enc_info_active": "ATTIVO (Dati salvati in GNOME Keyring)",
+  "enc_info_inactive": "DISATTIVATO (Nessun salvataggio)",
+  "enc_info_body": "Stato della crittografia: <b>{status}</b>\n\nQuesto client implementa una sicurezza di livello avanzato per proteggere la tua sessione di accesso (cookie):\n\n1. <b>Nessun file di cookie su disco</b>: i cookie di sessione non vengono MAI scritti in nessun file del file system (né su disco fisso/SSD, né su RAM disk in chiaro o cifrati).\n2. <b>GNOME Keyring nativo</b>: alla chiusura o alla modifica delle impostazioni, i cookie vengono serializzati in formato JSON cifrato e inviati direttamente a GNOME Keyring come segreto sicuro.\n3. <b>Caricamento in memoria</b>: all'avvio dell'applicazione, i cookie vengono letti direttamente dal Keyring e iniettati nella memoria volatile del processo di WebKit.\n4. <b>Dati temporanei in RAM</b>: i database locali temporanei delle pagine (IndexedDB/Local Storage) sono direzionati in memoria RAM (in <tt>/run/user/</tt>) e distrutti fisicamente tramite azzeramento (shredding) all'uscita.",
+  
+  "keyring_warning_title": "Portachiavi non disponibile",
+  "keyring_warning_body": "Non è stato possibile accedere a GNOME Keyring.\n\nL'applicazione verrà avviata in modalità temporanea: i cookie di accesso verranno conservati solo in memoria e andranno persi alla chiusura (nessun dato verrà scritto sul disco).\n\nVuoi continuare comunque?",
+  "keyring_warning_cancel": "Annulla ed Esci",
+  "keyring_warning_accept": "Continua senza salvare",
+  
+  "file_chooser_title": "Seleziona icona personalizzata (PNG)",
+  "file_chooser_open": "Apri",
+  "file_chooser_cancel": "Annulla",
+  "btn_close": "Chiudi",
+  "file_chooser_filter": "Immagini PNG (*.png)",
+  
+  "pref_title": "Preferenze",
+  "pref_group_home": "Pagina Iniziale e Home",
+  "pref_row_home_config": "Home Page configurata",
+  "pref_row_use_current": "Usa la pagina corrente",
+  "pref_sub_use_current": "Imposta come home: {title}",
+  "pref_sub_no_page": "Nessuna pagina aperta",
+  "pref_row_reset_default": "Ripristina predefinita",
+  "pref_sub_reset_default": "Reimposta la home page predefinita di Notion",
+  
+  "pref_group_ui": "Interfaccia Utente",
+  "pref_row_show_home": "Pulsante Home nella barra superiore",
+  "pref_sub_show_home": "Visualizza il tasto Home per tornare rapidamente alla pagina principale",
+  
+  "pref_group_startup": "Comportamento all'Avvio",
+  "pref_row_startup_action": "All'avvio di Procedure",
+  "pref_opt_restore": "Ripristina schede precedenti",
+  "pref_opt_home": "Apri la pagina Home",
+  
+  "pref_group_icon": "Personalizzazione Icona",
+  "pref_row_icon_in_use": "Icona in uso",
+  "pref_status_custom_icon": "Personalizzata (File PNG caricato)",
+  "pref_status_default_icon": "Predefinita (Minimalista)",
+  "pref_row_icon_default": "Icona predefinita",
+  "pref_sub_icon_default": "Ripristina l'icona minimalista flat di default",
+  "pref_row_icon_custom": "Icona personalizzata",
+  "pref_sub_icon_custom": "Seleziona un file immagine PNG dal tuo computer",
+  "pref_btn_apply": "Applica",
+  
+  "tab_general": "Generale",
+  "tab_icon": "Icona",
+  "home_default_title": "Home default di Notion",
+  "custom_page_title": "Pagina personalizzata",
+  
+  "pref_group_language": "Lingua e Internazionalizzazione",
+  "pref_row_language": "Lingua dell'applicazione",
+  "pref_row_sync_notion_lang": "Sincronizza lingua con Notion",
+  "pref_sub_sync_notion_lang": "Forza Notion a caricare nella stessa lingua impostata su Procedure"
+}

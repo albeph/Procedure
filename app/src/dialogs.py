@@ -4,6 +4,7 @@ gi.require_version('Gtk', '4.0')
 gi.require_version('Adw', '1')
 from gi.repository import Gtk, Adw
 from config import VERSION
+from language_manager import _t, LanguageManager
 
 def show_about_dialog(parent):
     """
@@ -14,12 +15,12 @@ def show_about_dialog(parent):
         application_name="Procedure",
         application_icon="io.github.albeph.Procedure",
         version=VERSION,
-        comments="Client GTK4 nativo per il desktop GNOME (wrapper Notion).",
+        comments=_t("about_comments"),
         website="https://github.com/albeph",
         license_type=Gtk.License.GPL_3_0,
         developers=["Albeph"],
     )
-    about.add_credit_section("AI Help", ["Gemini 3.5 Flash"])
+    about.add_credit_section(_t("about_ai_help"), ["Gemini 3.5 Flash"])
     about.present()
 
 
@@ -27,24 +28,16 @@ def show_encryption_info_dialog(parent, keyring_available):
     """
     Shows security info dialog with proper formatting.
     """
-    status = "ATTIVO (Dati salvati in GNOME Keyring)" if keyring_available else "DISATTIVATO (Nessun salvataggio)"
-    
-    body_text = f"""Stato della crittografia: <b>{status}</b>
-
-Questo client implementa una sicurezza di livello avanzato per proteggere la tua sessione di accesso (cookie):
-
-1. <b>Nessun file di cookie su disco</b>: i cookie di sessione non vengono MAI scritti in nessun file del file system (né su disco fisso/SSD, né su RAM disk in chiaro o cifrati).
-2. <b>GNOME Keyring nativo</b>: alla chiusura o alla modifica delle impostazioni, i cookie vengono serializzati in formato JSON cifrato e inviati direttamente a GNOME Keyring come segreto sicuro.
-3. <b>Caricamento in memoria</b>: all'avvio dell'applicazione, i cookie vengono letti direttamente dal Keyring e iniettati nella memoria volatile del processo di WebKit.
-4. <b>Dati temporanei in RAM</b>: i database locali temporanei delle pagine (IndexedDB/Local Storage) sono direzionati in memoria RAM (in <tt>/run/user/</tt>) e distrutti fisicamente tramite azzeramento (shredding) all'uscita.
-"""
+    status_key = "enc_info_active" if keyring_available else "enc_info_inactive"
+    status = _t(status_key)
+    body_text = _t("enc_info_body", status=status)
     dialog = Adw.MessageDialog(
         transient_for=parent,
-        heading="Informazioni sulla crittografia"
+        heading=_t("enc_info_title")
     )
     dialog.set_body_use_markup(True)
     dialog.set_body(body_text)
-    dialog.add_response("close", "Chiudi")
+    dialog.add_response("close", _t("btn_close"))
     dialog.set_default_response("close")
     dialog.connect("response", lambda d, r: d.destroy())
     dialog.present()
@@ -56,11 +49,11 @@ def show_keyring_warning(parent, callback):
     """
     dialog = Adw.MessageDialog(
         transient_for=parent,
-        heading="Portachiavi non disponibile",
-        body="Non è stato possibile accedere a GNOME Keyring.\n\nL'applicazione verrà avviata in modalità temporanea: i cookie di accesso verranno conservati solo in memoria e andranno persi alla chiusura (nessun dato verrà scritto sul disco).\n\nVuoi continuare comunque?",
+        heading=_t("keyring_warning_title"),
+        body=_t("keyring_warning_body"),
     )
-    dialog.add_response("cancel", "Annulla ed Esci")
-    dialog.add_response("accept", "Continua senza salvare")
+    dialog.add_response("cancel", _t("keyring_warning_cancel"))
+    dialog.add_response("accept", _t("keyring_warning_accept"))
     dialog.set_response_appearance("accept", Adw.ResponseAppearance.DESTRUCTIVE)
     
     def on_response(d, response):
@@ -71,72 +64,6 @@ def show_keyring_warning(parent, callback):
     dialog.present()
 
 
-def show_change_icon_dialog(parent, current_icon, callback):
-    """
-    Shows a custom dialog with a list of previewable icons.
-    """
-    import os
-    from config import RESOURCES_DIR
-
-    dialog = Adw.MessageDialog(
-        transient_for=parent,
-        heading="Personalizza Icona Applicazione",
-        body="Scegli lo stile dell'icona da applicare al lanciatore e al desktop di sistema. La modifica avrà effetto sul desktop e nella barra dock."
-    )
-    
-    # List box of icon choices
-    list_box = Gtk.ListBox()
-    list_box.set_selection_mode(Gtk.SelectionMode.SINGLE)
-    list_box.add_css_class("boxed-list")
-    
-    options = [
-        ("default", "Predefinita (Minimalista)", "L'icona minimalista flat bianca e nera con la lettera 'P'."),
-        ("custom_file", "Carica file PNG...", "Seleziona un'immagine PNG dal tuo computer.")
-    ]
-    
-    rows = {}
-    selected_row = None
-    
-    for opt_id, name, desc in options:
-        row = Adw.ActionRow()
-        row.set_title(name)
-        row.set_subtitle(desc)
-        
-        # Load preview icon or default symbol
-        if opt_id == "custom_file":
-            img = Gtk.Image.new_from_icon_name("document-open-symbolic")
-            img.set_pixel_size(32)
-            row.add_prefix(img)
-        else:
-            img_path = os.path.join(RESOURCES_DIR, "icon.png")
-            if os.path.exists(img_path):
-                img = Gtk.Image.new_from_file(img_path)
-                img.set_pixel_size(32)
-                row.add_prefix(img)
-            
-        list_box.append(row)
-        rows[row] = opt_id
-        if opt_id == current_icon:
-            selected_row = row
-            
-    if selected_row:
-        list_box.select_row(selected_row)
-        
-    dialog.set_extra_child(list_box)
-    
-    dialog.add_response("cancel", "Annulla")
-    dialog.add_response("apply", "Applica")
-    dialog.set_response_appearance("apply", Adw.ResponseAppearance.SUGGESTED)
-    
-    def on_response(d, response):
-        if response == "apply":
-            sel = list_box.get_selected_row()
-            if sel in rows:
-                callback(rows[sel])
-        d.destroy()
-        
-    dialog.connect("response", on_response)
-    dialog.present()
 
 
 def open_file_chooser(parent, file_callback):
@@ -144,16 +71,16 @@ def open_file_chooser(parent, file_callback):
     Opens a native file chooser dialog to select a custom PNG image file.
     """
     dialog = Gtk.FileChooserNative.new(
-        "Seleziona icona personalizzata (PNG)",
+        _t("file_chooser_title"),
         parent,
         Gtk.FileChooserAction.OPEN,
-        "Apri",
-        "Annulla"
+        _t("file_chooser_open"),
+        _t("file_chooser_cancel")
     )
     
     # Configure filters to only allow PNG images
     filter_png = Gtk.FileFilter.new()
-    filter_png.set_name("Immagini PNG (*.png)")
+    filter_png.set_name(_t("file_chooser_filter"))
     filter_png.add_pattern("*.png")
     filter_png.add_mime_type("image/png")
     dialog.add_filter(filter_png)
@@ -176,9 +103,9 @@ def show_preferences_dialog(parent, config, current_url, current_title, apply_ic
     window = Adw.Window(
         transient_for=parent,
         modal=True,
-        title="Preferenze",
+        title=_t("pref_title"),
         default_width=450,
-        default_height=520
+        default_height=540
     )
     
     main_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
@@ -210,12 +137,12 @@ def show_preferences_dialog(parent, config, current_url, current_title, apply_ic
     general_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=18)
     
     # Home Page Group
-    home_group = Adw.PreferencesGroup(title="Pagina Iniziale e Home")
+    home_group = Adw.PreferencesGroup(title=_t("pref_group_home"))
     general_box.append(home_group)
     
     def clean_title(url, title_str):
         if not url or url in ["https://app.notion.com/home", "https://www.notion.so/home", "https://notion.so/home", "https://www.notion.com/home"]:
-            return "Home default di Notion"
+            return _t("home_default_title")
         if title_str:
             if " | Notion" in title_str:
                 title_str = title_str.split(" | Notion")[0].strip()
@@ -223,17 +150,17 @@ def show_preferences_dialog(parent, config, current_url, current_title, apply_ic
                 title_str = title_str.split(" | ")[0].strip()
             if title_str:
                 return title_str
-        return "Pagina personalizzata"
+        return _t("custom_page_title")
 
     # Current settings states
     current_settings = {
         "home_url": config.get("home_url", "https://app.notion.com/home"),
-        "home_title": config.get("home_title", "Home default di Notion"),
+        "home_title": config.get("home_title", _t("home_default_title")),
         "icon": config.get("icon", "default")
     }
 
     current_home_row = Adw.ActionRow(
-        title="Home Page configurata",
+        title=_t("pref_row_home_config"),
         subtitle=current_settings["home_title"]
     )
     current_home_row.add_prefix(Gtk.Image.new_from_icon_name("go-home-symbolic"))
@@ -241,8 +168,8 @@ def show_preferences_dialog(parent, config, current_url, current_title, apply_ic
     
     clean_curr_title = clean_title(current_url, current_title) if current_url else None
     use_current_row = Adw.ActionRow(
-        title="Usa la pagina corrente",
-        subtitle=f"Imposta come home: {clean_curr_title}" if clean_curr_title else "Nessuna pagina aperta"
+        title=_t("pref_row_use_current"),
+        subtitle=_t("pref_sub_use_current", title=clean_curr_title) if clean_curr_title else _t("pref_sub_no_page")
     )
     btn_use_current = Gtk.Button.new_from_icon_name("document-save-symbolic")
     btn_use_current.set_valign(Gtk.Align.CENTER)
@@ -259,65 +186,90 @@ def show_preferences_dialog(parent, config, current_url, current_title, apply_ic
     home_group.add(use_current_row)
     
     reset_row = Adw.ActionRow(
-        title="Ripristina predefinita",
-        subtitle="Reimposta la home page predefinita di Notion"
+        title=_t("pref_row_reset_default"),
+        subtitle=_t("pref_sub_reset_default")
     )
     btn_reset = Gtk.Button.new_from_icon_name("edit-clear-symbolic")
     btn_reset.set_valign(Gtk.Align.CENTER)
     
     def on_reset_clicked(btn):
         current_settings["home_url"] = "https://app.notion.com/home"
-        current_settings["home_title"] = "Home default di Notion"
-        current_home_row.set_subtitle("Home default di Notion")
+        current_settings["home_title"] = _t("home_default_title")
+        current_home_row.set_subtitle(_t("home_default_title"))
         
     btn_reset.connect("clicked", on_reset_clicked)
     reset_row.add_suffix(btn_reset)
     home_group.add(reset_row)
     
     # Interface Group
-    ui_group = Adw.PreferencesGroup(title="Interfaccia Utente")
+    ui_group = Adw.PreferencesGroup(title=_t("pref_group_ui"))
     general_box.append(ui_group)
     
     show_home_switch = Adw.SwitchRow(
-        title="Pulsante Home nella barra superiore",
-        subtitle="Visualizza il tasto Home per tornare rapidamente alla pagina principale",
+        title=_t("pref_row_show_home"),
+        subtitle=_t("pref_sub_show_home"),
         active=config.get("show_home_button", True)
     )
     ui_group.add(show_home_switch)
     
     # Startup Group
-    startup_group = Adw.PreferencesGroup(title="Comportamento all'Avvio")
+    startup_group = Adw.PreferencesGroup(title=_t("pref_group_startup"))
     general_box.append(startup_group)
     
-    behavior_model = Gtk.StringList.new(["Ripristina schede precedenti", "Apri la pagina Home"])
+    behavior_model = Gtk.StringList.new([_t("pref_opt_restore"), _t("pref_opt_home")])
     behavior_combo = Adw.ComboRow(
-        title="All'avvio di Procedure",
+        title=_t("pref_row_startup_action"),
         model=behavior_model,
         selected=0 if config.get("startup_behavior", "restore") == "restore" else 1
     )
     startup_group.add(behavior_combo)
     
+    # Language Group
+    lang_group = Adw.PreferencesGroup(title=_t("pref_group_language"))
+    general_box.append(lang_group)
+    
+    langs = LanguageManager.get_available_languages()
+    lang_codes = list(langs.keys())
+    lang_names = list(langs.values())
+    lang_model = Gtk.StringList.new(lang_names)
+    current_lang_code = LanguageManager.get_current_language()
+    selected_idx = lang_codes.index(current_lang_code) if current_lang_code in lang_codes else 0
+    
+    lang_combo = Adw.ComboRow(
+        title=_t("pref_row_language"),
+        model=lang_model,
+        selected=selected_idx
+    )
+    lang_group.add(lang_combo)
+    
+    sync_notion_switch = Adw.SwitchRow(
+        title=_t("pref_row_sync_notion_lang"),
+        subtitle=_t("pref_sub_sync_notion_lang"),
+        active=config.get("sync_notion_lang", True)
+    )
+    lang_group.add(sync_notion_switch)
+    
     scroll_general = create_scroll_page(general_box)
     view_stack.add_titled_with_icon(
         scroll_general,
         "general",
-        "Generale",
+        _t("tab_general"),
         "preferences-system-symbolic"
     )
 
     # --- PAGE 2: ICONA ---
     icon_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=18)
     
-    icon_group = Adw.PreferencesGroup(title="Personalizzazione Icona")
+    icon_group = Adw.PreferencesGroup(title=_t("pref_group_icon"))
     icon_box.append(icon_group)
     
     def get_icon_status_label(icon_type):
         if icon_type == "custom":
-            return "Personalizzata (File PNG caricato)"
-        return "Predefinita (Minimalista)"
+            return _t("pref_status_custom_icon")
+        return _t("pref_status_default_icon")
         
     current_icon_row = Adw.ActionRow(
-        title="Icona in uso",
+        title=_t("pref_row_icon_in_use"),
         subtitle=get_icon_status_label(current_settings["icon"])
     )
     
@@ -346,10 +298,10 @@ def show_preferences_dialog(parent, config, current_url, current_title, apply_ic
     icon_group.add(current_icon_row)
     
     default_icon_row = Adw.ActionRow(
-        title="Icona predefinita",
-        subtitle="Ripristina l'icona minimalista flat di default"
+        title=_t("pref_row_icon_default"),
+        subtitle=_t("pref_sub_icon_default")
     )
-    btn_apply_default = Gtk.Button.new_with_label("Applica")
+    btn_apply_default = Gtk.Button.new_with_label(_t("pref_btn_apply"))
     btn_apply_default.set_valign(Gtk.Align.CENTER)
     btn_apply_default.add_css_class("suggested-action")
     
@@ -364,8 +316,8 @@ def show_preferences_dialog(parent, config, current_url, current_title, apply_ic
     icon_group.add(default_icon_row)
     
     custom_icon_row = Adw.ActionRow(
-        title="Icona personalizzata",
-        subtitle="Seleziona un file immagine PNG dal tuo computer"
+        title=_t("pref_row_icon_custom"),
+        subtitle=_t("pref_sub_icon_custom")
     )
     btn_upload_custom = Gtk.Button.new_from_icon_name("document-open-symbolic")
     btn_upload_custom.set_valign(Gtk.Align.CENTER)
@@ -388,7 +340,7 @@ def show_preferences_dialog(parent, config, current_url, current_title, apply_ic
     view_stack.add_titled_with_icon(
         scroll_icon,
         "icon",
-        "Icona",
+        _t("tab_icon"),
         "preferences-desktop-wallpaper-symbolic"
     )
 
@@ -411,6 +363,12 @@ def show_preferences_dialog(parent, config, current_url, current_title, apply_ic
         config["icon"] = current_settings["icon"]
         config["show_home_button"] = show_home_switch.get_active()
         config["startup_behavior"] = "restore" if behavior_combo.get_selected() == 0 else "home"
+        
+        # Save language configuration
+        selected_lang_code = lang_codes[lang_combo.get_selected()]
+        config["language"] = selected_lang_code
+        config["sync_notion_lang"] = sync_notion_switch.get_active()
+        
         save_callback()
         
     window.connect("close-request", on_close_request)

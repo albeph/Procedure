@@ -12,6 +12,7 @@ from config import CONFIG_FILE, USER_AGENT, VERBOSE
 from session_manager import SessionManager
 from shortcuts_manager import ShortcutsManager
 from theme_manager import ThemeManager
+from language_manager import _t, LanguageManager
 import dialogs
 
 class ProcedureWindow(Adw.ApplicationWindow):
@@ -82,27 +83,27 @@ class ProcedureWindow(Adw.ApplicationWindow):
         
         # Home button (separate, not linked to the nav_box)
         self.btn_home = Gtk.Button.new_from_icon_name("go-home-symbolic")
-        self.btn_home.set_tooltip_text("Vai alla Home")
+        self.btn_home.set_tooltip_text(_t("tooltip_home"))
         self.btn_home.connect("clicked", self.on_home_clicked)
         self.btn_home.set_visible(self.config.get("show_home_button", True))
         self.header_bar.pack_start(self.btn_home)
         
         # Add new tab (+) button
         self.btn_new_tab = Gtk.Button.new_from_icon_name("list-add-symbolic")
-        self.btn_new_tab.set_tooltip_text("Nuova scheda (Ctrl+T)")
+        self.btn_new_tab.set_tooltip_text(_t("tooltip_new_tab"))
         self.btn_new_tab.connect("clicked", lambda b: self.open_new_tab())
         self.header_bar.pack_start(self.btn_new_tab)
         
         # Dropdown options menu button
         self.menu_button = Gtk.MenuButton()
         self.menu_button.set_icon_name("view-more-symbolic")
-        self.menu_button.set_tooltip_text("Menu principale")
+        self.menu_button.set_tooltip_text(_t("tooltip_main_menu"))
         
         menu_model = Gio.Menu()
-        menu_model.append("Informazioni su Procedure", "win.about")
-        menu_model.append("Informazioni sulla crittografia", "win.encryption_info")
-        menu_model.append("Preferenze", "win.preferences")
-        menu_model.append("Esci e cancella sessione", "win.logout")
+        menu_model.append(_t("menu_about"), "win.about")
+        menu_model.append(_t("menu_encryption"), "win.encryption_info")
+        menu_model.append(_t("menu_preferences"), "win.preferences")
+        menu_model.append(_t("menu_logout"), "win.logout")
         self.menu_button.set_menu_model(menu_model)
         self.header_bar.pack_end(self.menu_button)
         
@@ -144,9 +145,11 @@ class ProcedureWindow(Adw.ApplicationWindow):
             "height": 768, 
             "tabs": ["https://app.notion.com/home"],
             "home_url": "https://app.notion.com/home",
-            "home_title": "Home default di Notion",
+            "home_title": _t("home_default_title"),
             "show_home_button": True,
-            "startup_behavior": "restore"
+            "startup_behavior": "restore",
+            "language": None,
+            "sync_notion_lang": True
         }
         if os.path.exists(CONFIG_FILE):
             try:
@@ -298,9 +301,10 @@ class ProcedureWindow(Adw.ApplicationWindow):
         webview.load_uri(url)
         
         page = self.tab_view.add_page(webview, None)
+        page.set_title(_t("tab_new"))
         
         # Bind page indicators using GObject notify signals
-        webview.connect("notify::title", lambda w, p: page.set_title(w.get_title() or "Procedure"))
+        webview.connect("notify::title", lambda w, p: page.set_title(w.get_title() or _t("app_name")))
         webview.connect("notify::is-loading", lambda w, p: page.set_loading(w.is_loading()))
         webview.connect("notify::uri", lambda w, p: self.update_nav_buttons())
         
@@ -376,8 +380,9 @@ class ProcedureWindow(Adw.ApplicationWindow):
         ThemeManager.apply_theme(new_webview, self.style_manager.get_dark(), run_now=False)
         
         page = self.tab_view.add_page(new_webview, None)
+        page.set_title(_t("tab_new"))
         
-        new_webview.connect("notify::title", lambda w, p: page.set_title(w.get_title() or "Procedure"))
+        new_webview.connect("notify::title", lambda w, p: page.set_title(w.get_title() or _t("app_name")))
         new_webview.connect("notify::is-loading", lambda w, p: page.set_loading(w.is_loading()))
         new_webview.connect("notify::uri", lambda w, p: self.update_nav_buttons())
         new_webview.connect("load-changed", self.on_webview_load_changed)
@@ -521,6 +526,23 @@ class ProcedureWindow(Adw.ApplicationWindow):
     def on_preferences_saved(self):
         """Saves configuration and updates UI layout accordingly."""
         self.save_config()
+        
+        # Re-initialize translations
+        LanguageManager.initialize(self.config.get("language"))
+        
+        # Update main window labels
+        self.set_title(_t("app_name"))
+        self.btn_home.set_tooltip_text(_t("tooltip_home"))
+        self.btn_new_tab.set_tooltip_text(_t("tooltip_new_tab"))
+        self.menu_button.set_tooltip_text(_t("tooltip_main_menu"))
+        
+        menu_model = Gio.Menu()
+        menu_model.append(_t("menu_about"), "win.about")
+        menu_model.append(_t("menu_encryption"), "win.encryption_info")
+        menu_model.append(_t("menu_preferences"), "win.preferences")
+        menu_model.append(_t("menu_logout"), "win.logout")
+        self.menu_button.set_menu_model(menu_model)
+        
         show_home = self.config.get("show_home_button", True)
         self.btn_home.set_visible(show_home)
 

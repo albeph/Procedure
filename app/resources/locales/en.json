@@ -1,0 +1,69 @@
+{
+  "app_name": "Procedure",
+  "tab_new": "New tab",
+  "tooltip_new_tab": "New tab (Ctrl+T)",
+  "tooltip_main_menu": "Main menu",
+  "tooltip_home": "Go to Home",
+  
+  "menu_about": "About Procedure",
+  "menu_encryption": "Encryption Information",
+  "menu_preferences": "Preferences",
+  "menu_logout": "Log Out and Clear Session",
+  
+  "about_comments": "Native GTK4 desktop client for GNOME (Notion wrapper).",
+  "about_ai_help": "AI Help",
+  
+  "enc_info_title": "Encryption Information",
+  "enc_info_active": "ACTIVE (Data saved in GNOME Keyring)",
+  "enc_info_inactive": "DISABLED (No saving)",
+  "enc_info_body": "Encryption status: <b>{status}</b>\n\nThis client implements advanced security to protect your login session (cookies):\n\n1. <b>No cookies on disk</b>: session cookies are NEVER written to any filesystem file (neither on HDD/SSD, nor on RAM disk in cleartext or encrypted format).\n2. <b>Native GNOME Keyring</b>: upon closing or changing settings, cookies are serialized in encrypted JSON format and sent directly to GNOME Keyring as a secure secret.\n3. <b>RAM loading</b>: at application startup, cookies are read directly from the Keyring and injected into the WebKit process volatile memory.\n4. <b>Temporary data in RAM</b>: local page databases (IndexedDB/Local Storage) reside entirely in volatile RAM (in <tt>/run/user/</tt>) and are securely shredded (zeroed out) on exit.",
+  
+  "keyring_warning_title": "Keyring Unavailable",
+  "keyring_warning_body": "Could not access GNOME Keyring.\n\nThe application will start in temporary mode: login cookies will be kept in memory only and will be lost on exit (no data will be written to disk).\n\nDo you want to continue anyway?",
+  "keyring_warning_cancel": "Cancel and Exit",
+  "keyring_warning_accept": "Continue without saving",
+  
+  "file_chooser_title": "Select Custom Icon (PNG)",
+  "file_chooser_open": "Open",
+  "file_chooser_cancel": "Cancel",
+  "btn_close": "Close",
+  "file_chooser_filter": "PNG Images (*.png)",
+  
+  "pref_title": "Preferences",
+  "pref_group_home": "Startup and Home Page",
+  "pref_row_home_config": "Configured Home Page",
+  "pref_row_use_current": "Use Current Page",
+  "pref_sub_use_current": "Set as home: {title}",
+  "pref_sub_no_page": "No page open",
+  "pref_row_reset_default": "Reset to Default",
+  "pref_sub_reset_default": "Reset to the default Notion home page",
+  
+  "pref_group_ui": "User Interface",
+  "pref_row_show_home": "Home button in header bar",
+  "pref_sub_show_home": "Show the Home button to quickly return to the main page",
+  
+  "pref_group_startup": "Startup Behavior",
+  "pref_row_startup_action": "On Procedure startup",
+  "pref_opt_restore": "Restore previous tabs",
+  "pref_opt_home": "Open the Home page",
+  
+  "pref_group_icon": "Icon Customization",
+  "pref_row_icon_in_use": "Icon in use",
+  "pref_status_custom_icon": "Custom (PNG file loaded)",
+  "pref_status_default_icon": "Default (Minimalist)",
+  "pref_row_icon_default": "Default icon",
+  "pref_sub_icon_default": "Restore the default flat minimalist icon",
+  "pref_row_icon_custom": "Custom icon",
+  "pref_sub_icon_custom": "Select a PNG image file from your computer",
+  "pref_btn_apply": "Apply",
+  
+  "tab_general": "General",
+  "tab_icon": "Icon",
+  "home_default_title": "Default Notion Home",
+  "custom_page_title": "Custom page",
+  
+  "pref_group_language": "Language and Internationalization",
+  "pref_row_language": "Application language",
+  "pref_row_sync_notion_lang": "Sync language with Notion",
+  "pref_sub_sync_notion_lang": "Force Notion to load in the same language configured in Procedure"
+}
