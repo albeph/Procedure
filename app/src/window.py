@@ -80,6 +80,13 @@ class ProcedureWindow(Adw.ApplicationWindow):
         self.nav_box.append(self.btn_reload)
         self.header_bar.pack_start(self.nav_box)
         
+        # Home button (separate, not linked to the nav_box)
+        self.btn_home = Gtk.Button.new_from_icon_name("go-home-symbolic")
+        self.btn_home.set_tooltip_text("Vai alla Home")
+        self.btn_home.connect("clicked", self.on_home_clicked)
+        self.btn_home.set_visible(self.config.get("show_home_button", True))
+        self.header_bar.pack_start(self.btn_home)
+        
         # Add new tab (+) button
         self.btn_new_tab = Gtk.Button.new_from_icon_name("list-add-symbolic")
         self.btn_new_tab.set_tooltip_text("Nuova scheda (Ctrl+T)")
@@ -95,6 +102,7 @@ class ProcedureWindow(Adw.ApplicationWindow):
         menu_model.append("Informazioni su Procedure", "win.about")
         menu_model.append("Informazioni sulla crittografia", "win.encryption_info")
         menu_model.append("Personalizza icona", "win.change_icon")
+        menu_model.append("Preferenze", "win.preferences")
         menu_model.append("Esci e cancella sessione", "win.logout")
         self.menu_button.set_menu_model(menu_model)
         self.header_bar.pack_end(self.menu_button)
@@ -119,6 +127,7 @@ class ProcedureWindow(Adw.ApplicationWindow):
             ("about", lambda a, p: dialogs.show_about_dialog(self)),
             ("encryption_info", lambda a, p: dialogs.show_encryption_info_dialog(self, self.session_manager.keyring_available)),
             ("change_icon", lambda a, p: dialogs.show_change_icon_dialog(self, self.config.get("icon", "default"), self.on_icon_dialog_result)),
+            ("preferences", self.on_preferences_activated),
             ("logout", self.on_logout_activated)
         ]
         for name, callback in actions:
@@ -132,11 +141,19 @@ class ProcedureWindow(Adw.ApplicationWindow):
 
     def load_config(self):
         """Loads last width, height, and active tab lists from config.json."""
-        self.config = {"width": 1024, "height": 768, "tabs": ["https://www.notion.com/login"]}
+        self.config = {
+            "width": 1024, 
+            "height": 768, 
+            "tabs": ["https://app.notion.com/home"],
+            "home_url": "https://app.notion.com/home",
+            "show_home_button": True,
+            "startup_behavior": "restore"
+        }
         if os.path.exists(CONFIG_FILE):
             try:
                 with open(CONFIG_FILE, "r") as f:
-                    self.config = json.load(f)
+                    loaded = json.load(f)
+                    self.config.update(loaded)
             except Exception:
                 pass
         self.set_default_size(self.config.get("width", 1024), self.config.get("height", 768))
@@ -154,7 +171,7 @@ class ProcedureWindow(Adw.ApplicationWindow):
             if uri and uri != "about:blank" and "unsupported-browser" not in uri:
                 tab_uris.append(uri)
         if not tab_uris:
-            tab_uris = ["https://www.notion.com/login"]
+            tab_uris = [self.config.get("home_url", "https://app.notion.com/home")]
         self.config["width"] = width
         self.config["height"] = height
         self.config["tabs"] = tab_uris
@@ -235,12 +252,22 @@ class ProcedureWindow(Adw.ApplicationWindow):
     # --------------------------------------------------------------------------
 
     def open_initial_tabs(self):
-        """Restores tabs list, defaults to home page if list is empty."""
-        tabs = self.config.get("tabs", ["https://www.notion.com/login"])
+        """Restores tabs list or loads home page based on startup preferences."""
+        behavior = self.config.get("startup_behavior", "restore")
+        home_url = self.config.get("home_url", "https://app.notion.com/home")
+        
+        if behavior == "home":
+            tabs = [home_url]
+        else:
+            tabs = self.config.get("tabs", [home_url])
+            if not tabs:
+                tabs = [home_url]
+                
         for tab_url in tabs:
             self.open_new_tab(tab_url)
+            
         if self.tab_view.get_n_pages() == 0:
-            self.open_new_tab()
+            self.open_new_tab(home_url)
 
     def open_new_tab(self, url=None):
         """
@@ -252,12 +279,13 @@ class ProcedureWindow(Adw.ApplicationWindow):
         Returns:
             Adw.TabPage: The created Libadwaita tab page container.
         """
+        home_url = self.config.get("home_url", "https://app.notion.com/home")
         if url is None:
             active_wv = self.get_active_webview()
             if active_wv:
                 url = active_wv.get_uri()
             if not url or url == "about:blank" or "unsupported-browser" in url:
-                url = "https://www.notion.com/login"
+                url = home_url
                 
         # Initialize WebKit WebView
         webview = WebKit.WebView(network_session=self.network_session)
@@ -472,6 +500,30 @@ class ProcedureWindow(Adw.ApplicationWindow):
         self.session_manager.clear_keyring_cookies()
         self.session_manager.cleanup_volatile()
         self.close()
+
+    def on_home_clicked(self, button):
+        """Navigates the focused tab to the configured home page."""
+        webview = self.get_active_webview()
+        if webview:
+            home_url = self.config.get("home_url", "https://app.notion.com/home")
+            webview.load_uri(home_url)
+
+    def on_preferences_activated(self, action, param):
+        """Shows the Libadwaita Preferences dialog."""
+        active_wv = self.get_active_webview()
+        current_url = active_wv.get_uri() if active_wv else None
+        dialogs.show_preferences_dialog(
+            self,
+            self.config,
+            current_url,
+            self.on_preferences_saved
+        )
+
+    def on_preferences_saved(self):
+        """Saves configuration and updates UI layout accordingly."""
+        self.save_config()
+        show_home = self.config.get("show_home_button", True)
+        self.btn_home.set_visible(show_home)
 
     # --------------------------------------------------------------------------
     # Shortcut Delegation Handlers

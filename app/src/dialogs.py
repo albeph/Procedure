@@ -166,3 +166,106 @@ def open_file_chooser(parent, file_callback):
         
     dialog.connect("response", on_response)
     dialog.show()
+
+
+def show_preferences_dialog(parent, config, current_url, save_callback):
+    """
+    Shows a native Libadwaita Preferences window to configure home page, startup behavior, and UI elements.
+    """
+    pref_window = Adw.PreferencesWindow(
+        transient_for=parent,
+        title="Preferenze"
+    )
+    
+    page = Adw.PreferencesPage()
+    pref_window.add(page)
+    
+    # --- Group: Home Page ---
+    home_group = Adw.PreferencesGroup(
+        title="Pagina Iniziale e Home"
+    )
+    page.add(home_group)
+    
+    # Entry row for Home URL
+    home_entry = Adw.EntryRow(
+        title="Indirizzo Home Page",
+        text=config.get("home_url", "https://app.notion.com/home")
+    )
+    home_group.add(home_entry)
+    
+    # Action row with button to use current page
+    use_current_row = Adw.ActionRow(
+        title="Usa la pagina corrente",
+        subtitle=f"Imposta come home page: {current_url or 'nessuna'}"
+    )
+    btn_use_current = Gtk.Button.new_from_icon_name("document-save-symbolic")
+    btn_use_current.set_valign(Gtk.Align.CENTER)
+    def on_use_current_clicked(btn):
+        if current_url:
+            home_entry.set_text(current_url)
+    btn_use_current.connect("clicked", on_use_current_clicked)
+    use_current_row.add_suffix(btn_use_current)
+    home_group.add(use_current_row)
+    
+    # Reset button/row
+    reset_row = Adw.ActionRow(
+        title="Ripristina predefinita",
+        subtitle="Reimposta la home page predefinita di Notion"
+    )
+    btn_reset = Gtk.Button.new_from_icon_name("edit-clear-symbolic")
+    btn_reset.set_valign(Gtk.Align.CENTER)
+    def on_reset_clicked(btn):
+        home_entry.set_text("https://app.notion.com/home")
+    btn_reset.connect("clicked", on_reset_clicked)
+    reset_row.add_suffix(btn_reset)
+    home_group.add(reset_row)
+    
+    # --- Group: Interfaccia ---
+    ui_group = Adw.PreferencesGroup(
+        title="Interfaccia Utente"
+    )
+    page.add(ui_group)
+    
+    # Show/hide home button switch
+    show_home_switch = Adw.SwitchRow(
+        title="Pulsante Home nella barra superiore",
+        subtitle="Visualizza il tasto Home per tornare rapidamente alla pagina principale",
+        active=config.get("show_home_button", True)
+    )
+    ui_group.add(show_home_switch)
+    
+    # --- Group: Avvio ---
+    startup_group = Adw.PreferencesGroup(
+        title="Comportamento all'Avvio"
+    )
+    page.add(startup_group)
+    
+    # Startup behavior combo
+    behavior_model = Gtk.StringList.new(["Ripristina schede precedenti", "Apri la pagina Home"])
+    behavior_combo = Adw.ComboRow(
+        title="All'avvio di Procedure",
+        model=behavior_model,
+        selected=0 if config.get("startup_behavior", "restore") == "restore" else 1
+    )
+    startup_group.add(behavior_combo)
+    
+    # When preferences window is closed, save the settings
+    def on_close_request(win):
+        # Read the values
+        new_home_url = home_entry.get_text().strip()
+        if not new_home_url:
+            new_home_url = "https://app.notion.com/home"
+        
+        new_show_home = show_home_switch.get_active()
+        new_behavior = "restore" if behavior_combo.get_selected() == 0 else "home"
+        
+        # Save to config dict
+        config["home_url"] = new_home_url
+        config["show_home_button"] = new_show_home
+        config["startup_behavior"] = new_behavior
+        
+        # Trigger save callback
+        save_callback()
+        
+    pref_window.connect("close-request", on_close_request)
+    pref_window.present()
