@@ -118,6 +118,14 @@ def show_preferences_dialog(parent, config, current_url, current_title, apply_ic
             border-style: none;
             box-shadow: none;
         }
+        scrolledwindow.language-scrolled-list row:first-child {
+            border-top-left-radius: 8px;
+            border-top-right-radius: 8px;
+        }
+        scrolledwindow.language-scrolled-list row:last-child {
+            border-bottom-left-radius: 8px;
+            border-bottom-right-radius: 8px;
+        }
     """)
     Gtk.StyleContext.add_provider_for_display(
         window.get_display(),
