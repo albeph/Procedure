@@ -1,5 +1,6 @@
 import os
 import sys
+import json
 import urllib.parse
 import gi
 gi.require_version('Gtk', '4.0')
