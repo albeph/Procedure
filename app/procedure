@@ -2,9 +2,6 @@
 import sys
 import os
 
-# Disable WebKitGTK sandbox to prevent crashes in specific virtualization/container environments
-# WTF poi gli diamo na sbirciata
-os.environ["WEBKIT_DISABLE_SANDBOX_THIS_IS_DANGEROUS"] = "1"
 # Force hardware composite fallback to fix NVIDIA driver blank screen rendering issues
 os.environ["WEBKIT_DISABLE_DMABUF_RENDERER"] = "1"
 
