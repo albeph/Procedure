@@ -1,6 +1,7 @@
 [Desktop Entry]
 Name=Procedure
-Comment=Client desktop GTK4 nativo con schede
+Comment=Notion wrapper (Native GTK4 desktop client with tabs)
+Comment[it]=Wrapper per Notion (Client desktop GTK4 nativo con schede)
 Exec=procedure %U
 Icon=io.github.albeph.Procedure
 Terminal=false
@@ -9,4 +10,4 @@ Categories=Office;Utility;
 MimeType=x-scheme-handler/procedure;
 StartupWMClass=io.github.albeph.Procedure
 SingleMainWindow=true
-Keywords=procedure;notes;workspace;editor;markdown;
+Keywords=procedure;notes;workspace;editor;markdown;notion;wrapper;
