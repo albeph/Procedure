@@ -10,7 +10,7 @@
   "menu_preferences": "Preferenze",
   "menu_logout": "Esci e cancella sessione",
   
-  "about_comments": "Client GTK4 nativo per il desktop GNOME (wrapper Notion).",
+  "about_comments": "Un wrapper per la webapp di Notion.",
   "about_ai_help": "AI Help",
   
   "enc_info_title": "Informazioni sulla crittografia",

@@ -57,7 +57,7 @@ Priority: optional
 Architecture: all
 Depends: python3, python3-gi, python3-pil, gir1.2-webkit-6.0, gir1.2-adw-1, libsecret-1-0
 Maintainer: Albeph <albeph@github.io>
-Description: Native GTK4 desktop client wrapper for Notion.
+Description: GTK4 wrapper for Notion.
  A minimal, fast, and secure desktop client wrapper for Notion with zero disk cache footprint.
  Features multi-tab support, local Keyring encryption, and automatic theme syncing.
 EOF
