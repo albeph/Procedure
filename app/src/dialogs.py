@@ -17,7 +17,7 @@ def show_about_dialog(parent):
         application_icon="io.github.albeph.Procedure",
         version=VERSION,
         comments=_t("about_comments"),
-        website="https://github.com/albeph",
+        website="https://albeph.github.io/",
         license_type=Gtk.License.GPL_3_0,
         developers=["Albeph"],
     )
