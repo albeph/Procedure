@@ -1,11 +1,6 @@
 #!/usr/bin/env python3
 import sys
 import os
-
-# Force hardware composite fallback to fix NVIDIA driver blank screen rendering issues (only on NVIDIA GPUs)
-if os.path.exists("/sys/module/nvidia") or os.path.exists("/proc/driver/nvidia"):
-    os.environ["WEBKIT_DISABLE_DMABUF_RENDERER"] = "1"
-
 # Configure GdkPixbuf SVG loaders at runtime inside the AppImage
 appdir = os.environ.get("APPDIR")
 if appdir:
