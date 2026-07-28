@@ -292,6 +292,7 @@ class ProcedureWindow(Adw.ApplicationWindow):
         # Configure user agent signature
         settings = webview.get_settings()
         settings.set_user_agent(USER_AGENT)
+        settings.set_hardware_acceleration_policy(WebKit.HardwareAccelerationPolicy.ALWAYS)
         if VERBOSE:
             settings.set_enable_developer_extras(True)
             settings.set_enable_write_console_messages_to_stdout(True)
@@ -377,6 +378,11 @@ class ProcedureWindow(Adw.ApplicationWindow):
         new_webview = WebKit.WebView(related_view=webview)
         new_webview.set_vexpand(True)
         new_webview.set_hexpand(True)
+        
+        # Configure hardware acceleration policy
+        new_settings = new_webview.get_settings()
+        new_settings.set_hardware_acceleration_policy(WebKit.HardwareAccelerationPolicy.ALWAYS)
+        
         ThemeManager.apply_theme(new_webview, self.style_manager.get_dark(), run_now=False)
         
         page = self.tab_view.add_page(new_webview, None)
